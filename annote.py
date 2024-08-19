@@ -4,33 +4,44 @@ import os
 import subprocess
 import sys
 
-def run_script_in_background():
-    if sys.platform == "win32":
-        # For Windows
-        subprocess.Popen(["start", "/B", "python", "other_script.py"], shell=True)
-    else:
-        # For Unix-like systems
-        subprocess.Popen(["nohup", "python3", "other_script.py", "&"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, preexec_fn=os.setpgrp)
 
-if __name__ == "__main__":
-    run_script_in_background()
-    print("Script started in the background.")
+def record_note(note):
+    print(f"Recording note: {note}")
+    message = create_note(note)
+    print(message)
 
+def execute_command(command):
+    print(f"Executing command: {command}")
+    # Add logic to execute the command
+
+def create_tag(tag, description):
+    print(f"Creating tag: {tag} with description: {description}")
+    # Add logic to save the tag and description
 
 def main():
-    # Create an argument parser
-    parser = argparse.ArgumentParser(description='Type in a note to have it annotated by Ollama')
+    parser = argparse.ArgumentParser(description="Annote CLI App")
 
-    # Add an argument for the string input
-    parser.add_argument('input_string', type=str, help='The input string')
+    # Flags for different actions
+    parser.add_argument("-n", "--note", type=str, help="Record a note")
+    parser.add_argument("-c", "--command", type=str, help="Execute a command")
+    parser.add_argument("-t", "--tag", type=str, help="Create a tag")
+    parser.add_argument("-d", "--description", type=str, help="Description for the tag")
 
-    # Parse the command line arguments
+    # Default note behavior
+    parser.add_argument("default_note", nargs='*', help="Default note to record if no flags are used")
+
     args = parser.parse_args()
 
-    # Access the input string
-    input_string = args.input_string
+    if args.note:
+        record_note(args.note)
+    elif args.command:
+        execute_command(args.command)
+    elif args.tag:
+        create_tag(args.tag, args.description)
+    elif args.default_note:
+        record_note(' '.join(args.default_note))
+    else:
+        parser.print_help()
 
-    create_note(input_string)
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

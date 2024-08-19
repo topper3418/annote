@@ -33,7 +33,7 @@ class Note(Base):
     __tablename__ = 'notes'
     # data
     id: Mapped[int] = mapped_column(primary_key=True)
-    timestamp: Mapped[datetime] = mapped_column(default=datetime.now)
+    timestamp: Mapped[datetime | None] = mapped_column(default=datetime.now)
     content: Mapped[str]
     completion: Mapped[bool | None] = mapped_column(default=False)
     # foreign keys
@@ -43,9 +43,14 @@ class Note(Base):
     children: Mapped[List["Note"]] = relationship("Note", back_populates="parent")
     task: Mapped["Task"] = relationship("Task", uselist=False, back_populates="note")
     tags: Mapped[List["Tag"]] = relationship("Tag", secondary=note_tag_table, back_populates="notes")
+    keywords: Mapped["Keyword"] = relationship("Keyword", back_populates="source")
     # Note associations
     associations_from: Mapped[List["NoteAssociation"]] = relationship("NoteAssociation", foreign_keys=[NoteAssociation.first_id], back_populates="first_note")
     associations_to: Mapped[List["NoteAssociation"]] = relationship("NoteAssociation", foreign_keys=[NoteAssociation.second_id], back_populates="second_note")
+
+    def __repr__(self):
+        timestamp = self.timestamp.strftime("%m/%d %H%M")
+        return f"Note({timestamp} - {self.content})"
 
 
 
@@ -78,6 +83,8 @@ class Keyword(Base):
     # data
     id: Mapped[int] = mapped_column(primary_key=True)
     keyword: Mapped[str]
+    # foreign keys
+    note_id: Mapped[int | None] = mapped_column(ForeignKey('notes.id'))
     # relations
     source: Mapped[Note] = relationship("Note", back_populates="keywords")
 
@@ -93,7 +100,7 @@ def create_note(content: str, is_completion: bool=False) -> Note:
     with Session() as session:
         session.add(note)
         session.commit()
-    return note
+        return f"note created: {note}"
 
 
 def create_tag(name: str, description: str) -> Tag:
@@ -106,4 +113,4 @@ def create_tag(name: str, description: str) -> Tag:
         tag = Tag(name=name, description=description)
         session.add(tag)
         session.commit()
-    return tag
+        return f"tag created: {tag}"
