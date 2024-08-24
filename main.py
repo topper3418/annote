@@ -16,7 +16,6 @@ engine = create_engine("sqlite:///annotes.db")  # Replace with your database URL
 
 Session = sessionmaker(bind=engine)
 
-
 class Base(DeclarativeBase):
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
 
@@ -27,10 +26,10 @@ class Entry(Base):
     text: Mapped[str] = mapped_column(String)
     create_time: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
     user_entry: Mapped[bool] = mapped_column(Boolean, default=True)
-    plan_id: Mapped[int] = mapped_column(ForeignKey('plans.id'), nullable=True)
+    # plan_id: Mapped[int] = mapped_column(ForeignKey('plans.id'), nullable=True)
     task_id: Mapped[int] = mapped_column(ForeignKey('tasks.id'), nullable=True)
 
-    plan = relationship("Plan", back_populates="entries", foreign_keys=[plan_id])
+    # plan = relationship("Plan", back_populates="entries", foreign_keys=[plan_id])
     task = relationship("Task", back_populates="entries", foreign_keys=[task_id])
     actions = relationship("Action", back_populates="entry")
 
@@ -38,24 +37,24 @@ class Entry(Base):
         return f"<Entry(text='{self.text}', create_time='{self.create_time}', user_entry='{self.user_entry}')>"
 
 
-class Plan(Base):
-    __tablename__ = 'plans'
-
-    seed_id: Mapped[int] = mapped_column(ForeignKey('entries.id'), nullable=False)
-
-    seed = relationship("Entry", foreign_keys=[seed_id])
-    entries = relationship("Entry", back_populates="plan", foreign_keys=[Entry.plan_id])
-    tasks = relationship("Task", back_populates="plan")
-
-    def __repr__(self):
-        return f"<Plan(seed='{self.seed}')>"
-    
-    def pprint(self):
-        pprint({
-            "seed": self.seed.text,
-            "tasks": [task.pprint() for task in self.tasks],
-            "entries": [entry.text for entry in self.entries]
-        })
+# class Plan(Base):
+#     __tablename__ = 'plans'
+#
+#     seed_id: Mapped[int] = mapped_column(ForeignKey('entries.id'), nullable=False)
+#
+#     seed = relationship("Entry", foreign_keys=[seed_id])
+#     entries = relationship("Entry", back_populates="plan", foreign_keys=[Entry.plan_id])
+#     tasks = relationship("Task", back_populates="plan")
+#
+#     def __repr__(self):
+#         return f"<Plan(seed='{self.seed}')>"
+#     
+#     def pprint(self):
+#         pprint({
+#             "seed": self.seed.text,
+#             "tasks": [task.pprint() for task in self.tasks],
+#             "entries": [entry.text for entry in self.entries]
+#         })
 
 
 class Task(Base):
@@ -66,31 +65,30 @@ class Task(Base):
     text: Mapped[str] = mapped_column(String)
     start: Mapped[datetime | None] = mapped_column(DateTime)
     end: Mapped[datetime | None] = mapped_column(DateTime)
-    planned: Mapped[bool] = mapped_column(Boolean, default=False)
 
     source_id: Mapped[int] = mapped_column(ForeignKey('entries.id'), nullable=False)
-    plan_id: Mapped[int] = mapped_column(ForeignKey('plans.id'), nullable=False)
+    # plan_id: Mapped[int] = mapped_column(ForeignKey('plans.id'), nullable=False)
     parent_id: Mapped[int] = mapped_column(ForeignKey('tasks.id'), nullable=True)
 
     entries = relationship("Entry", back_populates="task", foreign_keys=[Entry.task_id])
     source = relationship("Entry", foreign_keys=[source_id])
-    plan = relationship("Plan", back_populates="tasks", foreign_keys=[plan_id])
+    # plan = relationship("Plan", back_populates="tasks", foreign_keys=[plan_id])
     actions = relationship("Action", back_populates="task")
     parent = relationship("Task", remote_side=[id], back_populates="children")
     children = relationship("Task", back_populates="parent")
 
     def __repr__(self):
-        return f"<Task(text='{self.text}', start='{self.start}', end='{self.end}', planned='{self.planned}')>"
+        return f"<Task(text='{self.text}', start='{self.start}', end='{self.end}')>"
     
     def pprint(self):
         pprint({
             "text": self.text,
             "start": self.start,
             "end": self.end,
-            "planned": self.planned,
             "entries": [entry.text for entry in self.entries],
             "actions": [action.action for action in self.actions],
-            "children": [child.pprint() for child in self.children]
+            "children": [child.pprint() for child in self.children],
+            "source": self.source.text
         })
 
 
@@ -138,15 +136,16 @@ def generate_tasks(prompt: str) -> List[dict]:
     return tasks
 
 
-def create_task(task_dict: dict, source: Entry) -> Task:
+def create_task(task_dict: dict, parent: Task, source: Entry) -> Task:
     task = Task(
         text=task_dict['task'],
         start=datetime.strptime(task_dict.get('start', ''), "%Y-%m-%d %H:%M") if task_dict.get('start') else None,
-        end=datetime.strptime(task_dict.get('end', ''), "%Y-%m-%d %H:%M") if task_dict.get('end') else None
+        end=datetime.strptime(task_dict.get('end', ''), "%Y-%m-%d %H:%M") if task_dict.get('end') else None,
+        source=source,
+        parent=parent
     )
     for child_task_dict in task_dict.get('children', []):
-        child_task = create_task(child_task_dict, source)
-        task.source = source
+        child_task = create_task(child_task_dict, task, source)
         task.children.append(child_task)
     return task
 
@@ -159,24 +158,26 @@ time estimates, create a backend to let it run without
 clogging up the ui, and finally I need to make a webUI. 
 videogames will be AoE"""
 
+
 def main():
     start = time.perf_counter()
     with Session() as session:
         seed = Entry(text=test_prompt)
-        plan = Plan(seed=seed)
+        parent = Task(text="Plan for the day", source=seed)
         session.add(seed)
-        session.add(plan)
+        session.add(parent)
         session.commit()
         session.refresh(seed)
+        session.refresh(parent)
     tasks = generate_tasks(seed.text)
+    pprint(tasks)
     with Session() as session:
+        parent = session.query(Task).filter_by(id=parent.id).one()
         for task_dict in tasks:
-            task = create_task(task_dict, source=seed)
-            task.source = seed
-            task.plan = plan
+            task = create_task(task_dict, parent=parent, source=seed)
             session.add(task)
         session.commit()
-        plan.pprint()
+        parent.pprint()
     
     end = time.perf_counter()
     elapsed = end - start
