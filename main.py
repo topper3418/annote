@@ -8,10 +8,12 @@ from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship,
 from datetime import datetime
 import time
 
-# Step 2: Create an engine
+
+# configuration values
+OLLAMA_MODEL = 'llama3.1'
+
 engine = create_engine("sqlite:///annotes.db")  # Replace with your database URL
 
-# Step 3: Configure sessionmaker
 Session = sessionmaker(bind=engine)
 
 
@@ -127,7 +129,7 @@ def generate_tasks(prompt: str) -> List[dict]:
     response = ollama.generate(
         prompt=plan_generation_intro + prompt,
         format='json',
-        model='phi3',
+        model=OLLAMA_MODEL,
         options={ 'temperature': 0 },
         stream=False
     )
@@ -143,7 +145,7 @@ def create_task(task_dict: dict, source: Entry) -> Task:
         end=datetime.strptime(task_dict.get('end', ''), "%Y-%m-%d %H:%M") if task_dict.get('end') else None
     )
     for child_task_dict in task_dict.get('children', []):
-        child_task = create_task(child_task_dict)
+        child_task = create_task(child_task_dict, source)
         task.source = source
         task.children.append(child_task)
     return task
