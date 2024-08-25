@@ -5,7 +5,7 @@ import json
 import ollama
 
 # configuration values
-OLLAMA_MODEL = 'llama3.1'
+OLLAMA_MODEL = 'phi3'
 
 
 plan_generation_intro = """\
@@ -27,14 +27,17 @@ Here is the prompt:
 
 class GenerationError(Exception):
     pass
+    
 
-def parse_time(time_str: str) -> datetime:
+def parse_time(time_str: str | None) -> datetime | None:
     if time_str is None:
         return
     try:
         return datetime.strptime(time_str, "%Y-%m-%d %H:%M")
     except Exception as e:
-        raise GenerationError(f'Error parsing time string given, expected "%Y-%m-%d %H:%M" but got {time_str}')
+        # TODO: make this log it somewhere. maybe I can do a more expensive clean up LLM action later
+        print(f'Error parsing time string given, expected "%Y-%m-%d %H:%M" but got {time_str}\n{e}')
+        return 
 
 
 def generate_tasks(prompt: str) -> List[dict]:
@@ -47,10 +50,12 @@ def generate_tasks(prompt: str) -> List[dict]:
     )
     def clean_task(task_dict: dict) -> dict:
         new_dict = task_dict.copy()
-        new_dict['start'] = parse_time(task_dict['start'])
-        new_dict['end'] = parse_time(task_dict['end'])
+        new_dict['start'] = parse_time(task_dict.get('start'))
+        new_dict['end'] = parse_time(task_dict.get('end'))
         new_dict['children'] = [clean_task(child) for child in task_dict.get('children', [])]
         return new_dict
     parsed_response = json.loads(response['response'])
+    from pprint import pprint
+    pprint(parsed_response)
     tasks = parsed_response.get('tasks')
     return [clean_task(task) for task in tasks]

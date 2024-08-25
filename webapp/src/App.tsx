@@ -10,7 +10,6 @@ function App() {
   const { tasks, loading, error, refetch } = useGetTasks();
   const [expandedId, setExpandedId] = useState<number | null>(null);
 
-  if (tasks) console.log({ tasks });
   if (loading) console.log("loading...");
   if (error) console.error("error...");
 
