@@ -43,6 +43,7 @@ class Entry(Base):
         if recurse > 5:
             raise ValueError(f'max recurse is 4, {recurse} is too high')
         json_value = {
+            "id": self.id,
             "text": self.text,
             "create_time": self.create_time,
         }
@@ -79,6 +80,7 @@ class Task(Base):
         if recurse > 5:
             raise ValueError(f'max recurse is 4, {recurse} is too high')
         json_value = {
+            "id": self.id,
             "text": self.text,
             "start": self.start,
             "end": self.end,
@@ -109,6 +111,7 @@ class Action(Base):
         if recurse > 5:
             raise ValueError(f'max recurse is 4, {recurse} is too high')
         json_value = {
+            "id": self.id,
             "action": self.action
         }
         if recurse == 1:

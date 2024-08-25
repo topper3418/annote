@@ -44,8 +44,8 @@ export const TaskCard: React.FC<TaskCardInterface> = ({ task, expandedId, setExp
           <p>Children:</p>
           <ul>
             {children && children.map((child: Task) => (
-              <li>
-                <ConciseTaskCard key={child.id} task={child} />
+              <li key={child.id}>
+                <ConciseTaskCard task={child} />
               </li>
             ))}
           </ul>
@@ -61,7 +61,7 @@ export const TaskCard: React.FC<TaskCardInterface> = ({ task, expandedId, setExp
   }
 
   const onClick = setExpandedId ?
-    () => setExpandedId(taskId) :
+    () => setExpandedId(expandedId == taskId ? null : taskId) :
     () => { };
 
   return (
