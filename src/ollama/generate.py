@@ -29,6 +29,8 @@ class GenerationError(Exception):
     pass
 
 def parse_time(time_str: str) -> datetime:
+    if time_str is None:
+        return
     try:
         return datetime.strptime(time_str, "%Y-%m-%d %H:%M")
     except Exception as e:
