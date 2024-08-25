@@ -62,6 +62,7 @@ class Task(Base):
     text: Mapped[str] = mapped_column(String)
     start: Mapped[datetime | None] = mapped_column(DateTime)
     end: Mapped[datetime | None] = mapped_column(DateTime)
+    status: Mapped[str] = mapped_column(String, default="new")
     focus: Mapped[bool] = mapped_column(Boolean, default=False)
 
     parent_id: Mapped[int] = mapped_column(ForeignKey('tasks.id'), nullable=True)

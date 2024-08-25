@@ -19,7 +19,7 @@ export interface RootQueryInterface {
 
 export interface TaskCardInterface {
     task: Task;
-    expandedId: number | null;
-    setExpandedId: (taskId: number) => void;
+    expandedId?: number | null;
+    setExpandedId?: (taskId: number) => void;
 }
 

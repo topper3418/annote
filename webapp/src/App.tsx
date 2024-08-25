@@ -1,35 +1,10 @@
 import React, { useEffect, useState } from 'react'
 import './App.css'
-import { TaskCardInterface } from './types/components'
-// import { Task } from './types/objects';
+
 import useGetTasks from './hooks/getTasks';
+import { TaskCard } from './components/taskCard';
 
 
-const TaskCard: React.FC<TaskCardInterface> = ({ task, expandedId, setExpandedId }) => {
-  const {
-    id: taskId,
-    text,
-    start, end,
-    actions,
-    children
-  } = task;
-
-  return (
-    <div className="column card" onClick={() => setExpandedId(taskId)}>
-      <div className="row">
-        <h2 style={{ width: "60%" }}>{text}</h2>
-        <div className="column">
-          <p>Start: {String(start)}</p>
-          <p>End: {String(end)}</p>
-        </div>
-      </div>
-      <div className="row">
-        <p className="half-width">Children: {children?.length}</p>
-        <p className="half-width">Entries: {actions?.length}</p>
-      </div>
-    </div>
-  )
-}
 
 function App() {
   const { tasks, loading, error, refetch } = useGetTasks();
@@ -52,6 +27,7 @@ function App() {
       <div className="column repeater">
         {tasks && tasks.map((task) => (
           <TaskCard
+            key={task.id}
             task={task}
             expandedId={expandedId}
             setExpandedId={setExpandedId} />

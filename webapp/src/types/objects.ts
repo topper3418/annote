@@ -11,8 +11,9 @@ export type Task = {
     text: string;
     start: Date | null;
     end: Date | null;
-    focus: boolean;
-    parent_id: number | null;
+    status: string;
+    focus?: boolean;
+    parent_id?: number | null;
     actions?: Action[];
     parent?: Task | null;
     children?: Task[];
