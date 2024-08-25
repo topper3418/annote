@@ -40,9 +40,9 @@ def main():
             session.add(task)
         session.commit()
         session.refresh(parent)
-        print('children')
-        pprint([child.text for child in parent.children])
-        parent.pprint()
+        # print('children')
+        # pprint([child.text for child in parent.children])
+        pprint(parent.json(recurse=2))
     
     end = time.perf_counter()
     elapsed = end - start

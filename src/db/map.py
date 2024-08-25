@@ -31,13 +31,27 @@ class Entry(Base):
 
     text: Mapped[str] = mapped_column(String)
     create_time: Mapped[datetime] = mapped_column(DateTime, default=datetime.now)
-    task_id: Mapped[int] = mapped_column(ForeignKey('tasks.id'), nullable=True)
+    # task_id: Mapped[int] = mapped_column(ForeignKey('tasks.id'), nullable=True)
 
-    task = relationship("Task", back_populates="entries", foreign_keys=[task_id])
+    # task = relationship("Task", back_populates="entries", foreign_keys=[task_id])
     actions = relationship("Action", back_populates="entry")
 
     def __repr__(self):
         return f"<Entry(text='{self.text}', create_time='{self.create_time}')>"
+
+    def json(self, recurse=0):
+        if recurse > 5:
+            raise ValueError(f'max recurse is 4, {recurse} is too high')
+        json_value = {
+            "text": self.text,
+            "create_time": self.create_time,
+        }
+        if recurse == 1:
+            json_value["actions"] = [action.action for action in self.actions]
+        elif recurse > 1:
+            json_value["actions"] = [action.json(recurse-1) for action in self.actions]
+        return json_value
+            
 
 
 class Task(Base):
@@ -52,7 +66,7 @@ class Task(Base):
 
     parent_id: Mapped[int] = mapped_column(ForeignKey('tasks.id'), nullable=True)
 
-    entries = relationship("Entry", back_populates="task", foreign_keys=[Entry.task_id])
+    # entries = relationship("Entry", back_populates="task", foreign_keys=[Entry.task_id])
     actions = relationship("Action", back_populates="task")
     parent = relationship("Task", remote_side=[id], back_populates="children")
     children = relationship("Task", back_populates="parent")
@@ -60,15 +74,24 @@ class Task(Base):
     def __repr__(self):
         return f"<Task(text='{self.text}', start='{self.start}', end='{self.end}')>"
     
-    def pprint(self):
-        pprint({
+    def json(self, recurse=0):
+        if recurse > 5:
+            raise ValueError(f'max recurse is 4, {recurse} is too high')
+        json_value = {
             "text": self.text,
             "start": self.start,
             "end": self.end,
-            "entries": [entry.text for entry in self.entries],
-            "actions": [action.action for action in self.actions],
-            "children": [child.pprint() for child in self.children],
-        })
+            "focus": self.focus,
+        }
+        if recurse == 1:
+            json_value["actions"] = [action.action for action in self.actions]
+            json_value["children"] = [child.text for child in self.children]
+            json_value["parent"] = self.parent.text if self.parent else None
+        elif recurse > 1:
+            json_value["actions"] = [action.json(recurse-1) for action in self.actions]
+            json_value["children"] = [child.json(recurse-1) for child in self.children]
+            json_value["parent"] = self.parent.json(recurse-1) if self.parent else None
+        return json_value
 
 
 class Action(Base):
@@ -80,6 +103,21 @@ class Action(Base):
 
     task = relationship("Task", back_populates="actions")
     entry = relationship("Entry", back_populates="actions")
+
+    def json(self, recurse=0):
+        if recurse > 5:
+            raise ValueError(f'max recurse is 4, {recurse} is too high')
+        json_value = {
+            "action": self.action
+        }
+        if recurse == 1:
+            json_value["task"] = self.task.text
+            json_value["entry"] = self.entry.text
+        elif recurse > 1:
+            json_value["task"] = self.task.json(recurse-1) 
+            json_value["entry"] = self.entry.json(recurse-1)
+        return json_value
+
 
 
 Base.metadata.create_all(engine)

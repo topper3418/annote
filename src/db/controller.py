@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import List
 
 from .map import Entry, Task, Action, Session
 
@@ -28,6 +29,12 @@ def create_task(task_dict: dict,
         child_task = create_task(child_task_dict, task, source)
         task.children.append(child_task)
     return task
+
+
+def get_top_level_tasks_json(recurse: int = 0) -> List[dict]:
+    with Session() as session:
+        epics = session.query(Task).filter(Task.parent_id.is_(None)).all()
+        return [epic.json(recurse) for epic in epics]
 
 
 # "actions":
