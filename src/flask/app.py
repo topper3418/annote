@@ -1,13 +1,12 @@
 # this will allow for simple interactions with the app over a restful interface
 from flask import Flask, jsonify, request, abort
-from flask_sqlalchemy import SQLAlchemy
+from flask_cors import CORS
 
 from ..db.map import Task, Entry
+from ..db.controller import get_top_level_tasks_json
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///tasks.db'  # Change this to your preferred database URI
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-db = SQLAlchemy(app)
+CORS(app)
 
 # GET / -> all top level tasks, as objects populated with minimal stuff
 # GET /:taskid -> gets the details for a task, can be big if a top level task
@@ -18,8 +17,8 @@ db = SQLAlchemy(app)
 # Routes
 @app.route('/', methods=['GET'])
 def get_tasks():
-    tasks = Task.query.all()
-    return jsonify([{'id': task.id, 'title': task.title} for task in tasks])
+    tasks = get_top_level_tasks_json(recurse=3)
+    return jsonify({ "data": { "tasks": tasks } })
 
 # @app.route('/<int:task_id>', methods=['GET'])
 # def get_task(task_id):
