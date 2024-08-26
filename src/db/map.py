@@ -6,7 +6,7 @@ from datetime import datetime
 
 
 
-engine = create_engine("sqlite:///annotes.db")  # Replace with your database URL
+engine = create_engine("sqlite:///data/annotes.db")  # Replace with your database URL
 
 Session = sessionmaker(bind=engine)
 
@@ -119,6 +119,9 @@ class Action(Base):
             json_value["entry"] = self.entry.json(recurse-1)
         return json_value
 
+
+# TODO: make a class "Processing" that represents a run of the ollama engine. 
+# It should have an entry id, a context id (task), a depth, a process name and a data (json) field
 
 
 Base.metadata.create_all(engine)

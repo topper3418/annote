@@ -7,9 +7,9 @@ from .map import Entry, Task, Action, Session
 # for the most part, this is what the llm will be given access to. 
 
 
-def create_entry(prompt: str, parent: Task | None = None) -> Entry:
+def create_entry(prompt: str, context: Task | None = None) -> Entry:
     """from the user's input, creates and returns an entry"""
-    entry = Entry(text=prompt, task=parent)
+    entry = Entry(text=prompt)
     return entry
 
 

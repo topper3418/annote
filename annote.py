@@ -1,10 +1,7 @@
 import argparse
+from src.db.controller import create_entry
 
 
-def record_note(note):
-    print(f"Recording note: {note}")
-    message = create_note(note)
-    print(message)
 
 def execute_command(command):
     print(f"Executing command: {command}")
@@ -21,12 +18,14 @@ def main():
 
     args = parser.parse_args()
 
-    if args.command:
-        execute_command(args.command)
-    elif args.default_note:
-        record_note(' '.join(args.default_note))
+    if not any(vars(args).values()):
+        print("TODO implement 'keepopen' later")
     else:
-        parser.print_help()
+        if args.add_note:
+            create_entry(' '.join(args.default_note))
+        if args.add_command:
+            execute_command(args.add_command)
+
 
 if __name__ == "__main__":
     main()
