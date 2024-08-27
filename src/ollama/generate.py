@@ -8,6 +8,9 @@ import ollama
 OLLAMA_MODEL = 'llama3.1'
 
 
+
+# This is a simple generation to create a 
+
 plan_generation_intro = """\
 Respond to the following prompt using a json structure only. The prompt will be a plan that may be 
 in the first person, e.g. I should do this, or we need to do that. Please extract a list of tasks

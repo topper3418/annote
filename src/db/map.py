@@ -44,7 +44,7 @@ class Entry(Base):
             raise ValueError(f'max recurse is 4, {recurse} is too high')
         json_value = {
             "text": self.text,
-            "create_time": self.create_time,
+            "create_time": self.create_time.strftime("%Y-%M-%D %H:%M"),
         }
         if recurse == 1:
             json_value["actions"] = [action.action for action in self.actions]
@@ -80,8 +80,8 @@ class Task(Base):
             raise ValueError(f'max recurse is 4, {recurse} is too high')
         json_value = {
             "text": self.text,
-            "start": self.start,
-            "end": self.end,
+            "start": self.start.strftime("%Y-%M-%D %H:%M") if self.start else None,
+            "end": self.end.strftime("%Y-%M-%D %H:%M") if self.end else None,
             "focus": self.focus,
         }
         if recurse == 1:
