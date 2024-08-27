@@ -1,0 +1,63 @@
+div, p, h1, h2, h3, h4, body {
+  background-color: black;
+  color: white;
+}
+
+/* get rid of random spacing */
+div, p {
+  margin: 0;
+  padding: 0;
+}
+
+#root {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.padded {
+  padding: 10px;
+}
+
+.column {
+  display: flex;
+  flex-direction: column;
+}
+
+.row {
+  display: flex;
+  flex-direction: row;
+}
+
+.space-between {
+  display: flex;
+  justify-content: space-between;
+}
+
+.stretch {
+  display: flex;
+  align-items: stretch;
+}
+
+.half-width {
+  width: 50%;
+}
+
+.fill {
+  flex-grow: 1;
+}
+
+.repeater {
+  gap: 10px;
+}
+
+.card {
+  border: 2px solid;
+  border-radius: 10px;
+  padding: 10px;
+}
+
+
