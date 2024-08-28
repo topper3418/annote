@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import List
+from typing import List, Optional
 
 from sqlalchemy import desc
 
@@ -11,8 +11,10 @@ from .map import Entry, Task, Action, Session
 
 def create_entry(prompt: str, context: Task | None = None) -> Entry:
     """from the user's input, creates and returns an entry"""
-    entry = Entry(text=prompt)
-    return entry
+    with Session() as session:
+        entry = Entry(text=prompt)
+        session.add(entry)
+        return entry
 
 
 def create_task(task_dict: dict, 
@@ -39,9 +41,9 @@ def get_top_level_tasks_json(recurse: int = 0, limit: int = 50) -> List[dict]:
         return [epic.json(recurse) for epic in epics]
 
 
-def get_recent_entries_json(recurse: int = 0, limit: int = 50) -> List[dict]:
+def get_recent_entries_json(recurse: int = 0, limit: int = 50, search: Optional[str] = None) -> List[dict]:
     with Session() as session:
-        entries = session.query(Entry).order_by(Entry.create_time).limit(limit).all()
+        entries = session.query(Entry).order_by(Entry.create_time).limit(limit).where(Entry.text.ilike(search)).all()
         return [entry.json(recurse) for entry in entries]
 
 
