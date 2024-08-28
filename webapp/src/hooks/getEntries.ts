@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
-import { GetTasksHookInterface, TaskQueryInterface } from '../types/components';
-import { Task } from "../types/objects";
+import { GetEntriesHookInterface, EntryQueryInterface } from '../types/components';
+import { Entry } from "../types/objects";
 
 
-const useGetTasks = (): GetTasksHookInterface => {
-    const [tasks, setTasks] = useState<Task[]>([]);
+const useGetEntries = (): GetEntriesHookInterface => {
+    const [entries, setEntries] = useState<Entry[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [trigger, setTrigger] = useState(0);
@@ -13,10 +13,10 @@ const useGetTasks = (): GetTasksHookInterface => {
     useEffect(() => {
         setLoading(true);
 
-        fetch('http://127.0.0.1:2000/tasks')
+        fetch('http://127.0.0.1:2000/entries')
             .then((response) => response.json())
-            .then((body: TaskQueryInterface) => {
-                setTasks(body.data.tasks);
+            .then((body: EntryQueryInterface) => {
+                setEntries(body.data.entries);
             })
             .catch((error) => {
                 setError(error);
@@ -27,8 +27,8 @@ const useGetTasks = (): GetTasksHookInterface => {
 
     const refetch = () => setTrigger((prev) => prev + 1);
 
-    return { tasks, loading, error, refetch }
+    return { entries, loading, error, refetch }
 }
 
 
-export default useGetTasks;
+export default useGetEntries;

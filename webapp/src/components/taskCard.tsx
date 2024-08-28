@@ -3,7 +3,7 @@ import { TaskCardInterface } from '../types/components'
 import { Task, Action } from '../types/objects';
 import { formatTime } from '../util';
 
-export const ConciseTaskCard: React.FC<TaskCardInterface> = ({ task, setExpandedId = () => { } }) => {
+export const ConciseTaskCard: React.FC<TaskCardInterface> = ({ task, setExpandedId: setExpandedId = () => { } }) => {
   const {
     id: taskId,
     text,
@@ -19,7 +19,7 @@ export const ConciseTaskCard: React.FC<TaskCardInterface> = ({ task, setExpanded
 }
 
 
-export const TaskCard: React.FC<TaskCardInterface> = ({ task, expandedId, setExpandedId }) => {
+export const TaskCard: React.FC<TaskCardInterface> = ({ task, expandedId: expandedId, setExpandedId: setExpandedId }) => {
   const {
     id: taskId,
     text,

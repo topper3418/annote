@@ -22,6 +22,10 @@ div, p {
   padding: 10px;
 }
 
+.spaced {
+  gap: 15px;
+}
+
 .column {
   display: flex;
   flex-direction: column;
@@ -44,6 +48,14 @@ div, p {
 
 .half-width {
   width: 50%;
+}
+
+.width-60 {
+  width: 60%;
+}
+
+.width-40 {
+  width: 40%;
 }
 
 .fill {
