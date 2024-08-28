@@ -3,7 +3,7 @@ from flask import Flask, jsonify, request, abort
 from flask_cors import CORS
 
 from ..db.map import Task, Entry
-from ..db.controller import get_top_level_tasks_json
+from ..db.controller import get_top_level_tasks_json, get_recent_entries_json
 
 app = Flask(__name__)
 CORS(app)
@@ -15,10 +15,21 @@ CORS(app)
 # POST / -> create an entry
 # POST /command -> post specifically a command
 # Routes
-@app.route('/', methods=['GET'])
+@app.route('/', methods=['Get'])
+def ping():
+    return "I am here!"
+
+
+@app.route('/tasks', methods=['GET'])
 def get_tasks():
     tasks = get_top_level_tasks_json(recurse=3)
     return jsonify({ "data": { "tasks": tasks } })
+
+
+@app.route('/entries', methods=['GET'])
+def get_entries():
+    entries = get_recent_entries_json()
+    return jsonify({ "data": { "entries": entries } })
 
 # @app.route('/<int:task_id>', methods=['GET'])
 # def get_task(task_id):

@@ -31,10 +31,16 @@ def create_task(task_dict: dict,
     return task
 
 
-def get_top_level_tasks_json(recurse: int = 0) -> List[dict]:
+def get_top_level_tasks_json(recurse: int = 0, limit: int = 50) -> List[dict]:
     with Session() as session:
-        epics = session.query(Task).filter(Task.parent_id.is_(None)).all()
+        epics = session.query(Task).filter(Task.parent_id.is_(None)).limit(limit).all()
         return [epic.json(recurse) for epic in epics]
+
+
+def get_recent_entries_json(recurse: int = 0, limit: int = 50) -> List[dict]:
+    with Session() as session:
+        entries = session.query(Entry).order_by(Entry.create_time).limit(limit).all()
+        return [entry.json(recurse) for entry in entries]
 
 
 # "actions":
