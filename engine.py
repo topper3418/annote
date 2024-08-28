@@ -8,7 +8,7 @@ def cycle_engine():
     # get the current focus scope, pass it in along with the entry
     # ask it to generate tasks if applicable
     # ask it to generate actions to the existing tasks if applicable
-    pass
+    print("I'm running!")
 
 def run_scheduler():
     try:

@@ -1,6 +1,8 @@
 from datetime import datetime
 from typing import List
 
+from sqlalchemy import desc
+
 from .map import Entry, Task, Action, Session
 
 
@@ -41,6 +43,12 @@ def get_recent_entries_json(recurse: int = 0, limit: int = 50) -> List[dict]:
     with Session() as session:
         entries = session.query(Entry).order_by(Entry.create_time).limit(limit).all()
         return [entry.json(recurse) for entry in entries]
+
+
+def is_latest_entry(test_entry_id: int) -> bool:
+    with Session() as session:
+        latest_entry = session.query(Entry).order_by(desc(Entry.create_time)).one()
+        return test_entry_id == latest_entry.id
 
 
 # "actions":
