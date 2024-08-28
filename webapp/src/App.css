@@ -46,6 +46,16 @@ div, p {
   align-items: stretch;
 }
 
+.align-top {
+  display: flex;
+  align-items: flex-start;
+}
+
+.centered {
+  justify-content: center;
+  align-items: center;
+}
+
 .half-width {
   width: 50%;
 }
@@ -64,6 +74,12 @@ div, p {
 
 .repeater {
   gap: 10px;
+}
+
+.small-card {
+  border: 1px solid;
+  border-radius: 5px;
+  padding: 5px;
 }
 
 .card {

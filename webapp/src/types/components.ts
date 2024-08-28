@@ -36,6 +36,6 @@ export interface TaskCardInterface {
 export interface EntryCardInterface {
     entry: Entry;
     selectedId?: number | null;
-    setSelectedId?: (entryId: number | null) => void;
+    setSelectedId?: (entryId: number | null | undefined) => void;
 }
 

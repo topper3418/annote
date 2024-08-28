@@ -45,7 +45,7 @@ class Entry(Base):
         json_value = {
             "id": self.id,
             "text": self.text,
-            "create_time": self.create_time.strftime("%Y-%M-%D %H:%M"),
+            "create_time": self.create_time.strftime("%D %H:%M"),
         }
         if recurse == 1:
             json_value["actions"] = [action.action for action in self.actions]
@@ -82,8 +82,8 @@ class Task(Base):
         json_value = {
             "id": self.id,
             "text": self.text,
-            "start": self.start.strftime("%Y-%M-%D %H:%M") if self.start else None,
-            "end": self.end.strftime("%Y-%M-%D %H:%M") if self.end else None,
+            "start": self.start.strftime("%D %H:%M") if self.start else None,
+            "end": self.end.strftime("%D %H:%M") if self.end else None,
             "focus": self.focus,
         }
         if recurse == 1:
