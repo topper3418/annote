@@ -25,7 +25,8 @@ def main():
             execute_command(args.add_command)
         elif args.read:
             limit = args.read
-            entries = get_recent_entries_json(limit=limit, search=" ".join(args.default_note))
+            search = " ".join(args.default_note) if args.default_note else None
+            entries = get_recent_entries_json(limit=limit, search=search)
             pprint(entries)
         else:
             create_entry(" ".join(args.default_note))
