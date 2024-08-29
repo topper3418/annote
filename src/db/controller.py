@@ -46,10 +46,8 @@ def get_recent_entries_json(recurse: int = 0, limit: int = 50, search: Optional[
     with Session() as session:
         query = session.query(Entry)
         if search is not None:
-            print('search is not none')
             query = query.filter(Entry.text.ilike(search))
         query = query.order_by(Entry.create_time).limit(limit)
-        print('final query\n', query)
         entries = query.all()
         return [entry.json(recurse) for entry in entries]
 
