@@ -1,6 +1,6 @@
 from pprint import pprint
 
-from sqlalchemy import Column, Integer, String, DateTime, Boolean, ForeignKey, create_engine
+from sqlalchemy import Column, Integer, String, DateTime, Boolean, ForeignKey, Text, create_engine
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship, sessionmaker
 from datetime import datetime
 
@@ -35,6 +35,7 @@ class Entry(Base):
 
     # task = relationship("Task", back_populates="entries", foreign_keys=[task_id])
     actions = relationship("Action", back_populates="entry")
+    generations = relationship("Generation", back_populates="entry")
 
     def __repr__(self):
         return f"<Entry(text='{self.text}', create_time='{self.create_time}')>"
@@ -125,6 +126,27 @@ class Action(Base):
 
 # TODO: make a class "Processing" that represents a run of the ollama engine. 
 # It should have an entry id, a context id (task), a depth, a process name and a data (json) field
+class Generation(Base):
+    __tablename__ = 'generations'
+
+    process: Mapped[str] = mapped_column(String)
+    data: Mapped[str] = mapped_column(Text)
+    entry_id: Mapped[int] = mapped_column(ForeignKey('entries.id'), nullable=False)
+
+    entry = relationship("Entry", back_populates="generations")
+
+    def json(self, recurse=0):
+        if recurse > 5:
+            raise ValueError(f'max recurse is 4, {recurse} is too high')
+        json_value = {
+            'id': self.id,
+            'process': self.process
+        }
+        if recurse == 1:
+            json_value['entry'] = self.entry.text
+        elif recurse > 1:
+            json_value['entry'] = self.entry.json(recurse-1)
+        return json_value
 
 
 Base.metadata.create_all(engine)
