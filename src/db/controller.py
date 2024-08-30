@@ -3,7 +3,7 @@ from typing import Dict, List, Optional
 
 from sqlalchemy import desc
 
-from .map import Entry, Task, Action, Session
+from .map import Entry, Generation, Task, Action, Session
 
 
 # for the most part, this is what the llm will be given access to. 
@@ -47,15 +47,28 @@ def get_recent_entries_json(recurse: int = 0, limit: int = 50, search: Optional[
         query = session.query(Entry)
         if search is not None:
             query = query.filter(Entry.text.ilike(search))
-        query = query.order_by(Entry.create_time).limit(limit)
+        query = query.order_by(desc(Entry.create_time)).limit(limit)
         entries = query.all()
         return [entry.json(recurse) for entry in entries]
+
+def get_latest_entry() -> dict:
+    with Session() as session: 
+        query = session.query(Entry).order_by(desc(Entry.id))
+        entry = query.one()
+        return entry.json()
 
 
 def is_latest_entry(test_entry_id: int) -> bool:
     with Session() as session:
         latest_entry = session.query(Entry).order_by(desc(Entry.create_time)).one()
         return test_entry_id == latest_entry.id
+
+def get_latest_generated_entry_id() -> int:
+    """gets the highest entry id that has been processed. not to be confused with 
+        the most recently processed entry id"""
+    with Session() as session: 
+        highest_generation = session.query(Generation).order_by(desc(Generation.entry_id)).one()
+        return highest_generation.entry_id
 
 
 # "actions":

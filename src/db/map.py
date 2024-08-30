@@ -131,6 +131,8 @@ class Generation(Base):
 
     process: Mapped[str] = mapped_column(String)
     data: Mapped[str] = mapped_column(Text)
+    user_comment: Mapped[str] = mapped_column(String)
+    regenerated: Mapped[bool] = mapped_column(Boolean)
     entry_id: Mapped[int] = mapped_column(ForeignKey('entries.id'), nullable=False)
 
     entry = relationship("Entry", back_populates="generations")
