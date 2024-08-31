@@ -1,7 +1,13 @@
+from datetime import datetime
 from sqlalchemy.orm import Session
 from typing import List
+
+from ...util import parse_date
 from ..map import Task, Entry, Action
 
+
+def extract_date(task_dict: dict, key: str) -> datetime:
+    return parse_date(task_dict.get(key))
 
 def create_task(session: Session,
                 task_dict: dict, 
@@ -13,8 +19,8 @@ def create_task(session: Session,
         actions.append(Action(action="create", entry=source))
     task = Task(
         text=task_dict['text'],
-        start=task_dict.get('start'),
-        end=task_dict.get('end'),
+        start=extract_date(task_dict, 'start'),
+        end=extract_date(task_dict, 'end'),        
         focus=task_dict.get('focus'),
         parent=parent,
         actions=actions
@@ -51,3 +57,11 @@ def focus_task(session: Session,
 def get_focused_tasks(session: Session):
     tasks = session.query(Task).where(Task.focus == True).all()
     return tasks
+
+
+def wipe_tasks(session: Session):
+    """straight up deletes all tasks. I made this for dev purposes only"""
+    session.query(Task).delete()
+    session.commit()
+
+

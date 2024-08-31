@@ -14,8 +14,10 @@ Please consider this prompt:
 
 I would like for you to consider the task and nested subtasks shown and think of 
 any sub-tasks this adds, as well any actions this might perform upon them out of 
-["begin", "pause", "complete", "cancel", "annotate"]. annotate will most likely 
-be the most common. 
+["begin", "pause", "complete", "cancel", "note"]. "create" is not an action 
+you are allowed to generate, as any tasks you create will implicitly be created
+by that entry. note will most likely be the most common, as it is essentially 
+just a thought
 
 Do not speculate on what other actions might be required based on the context 
 and prompt, only deal with what the prompt directly implies. 
