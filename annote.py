@@ -1,16 +1,27 @@
 import argparse
 from pprint import pprint
-from src.db.controller import create_entry, get_recent_entries_json
+from typing import Optional
+# from src.db.controller import create_entry, get_recent_entries_json
+from src.db import Controller
 
 def execute_command(command):
     print(f"Executing command: {command}")
     # Add logic to execute the command
 
+def get_recent_entries_json(limit: int, search: Optional[str] = None):
+    with Controller() as db:
+        recent_entries = db.get_recent_entries(limit, search)
+        return [entry.json() for entry in recent_entries]
+
+def create_entry(text):
+    with Controller() as db: 
+        new_entry = db.create_entry(text)
+        return new_entry.json()
+
 def main():
     parser = argparse.ArgumentParser(description="Annote CLI App")
 
     # Flags for different actions
-    parser.add_argument("-c", "--command", type=str, help="Execute a command")
     parser.add_argument("-r", "--read", type=str, help="read notes, specify the limit, add a string to search")
 
     # Default note behavior
@@ -21,15 +32,14 @@ def main():
     if not any(vars(args).values()):
         print("TODO implement 'keepopen' later")
     else:
-        if args.command:
-            execute_command(args.add_command)
-        elif args.read:
+        if args.read:
             limit = args.read
             search = " ".join(args.default_note) if args.default_note else None
             entries = get_recent_entries_json(limit=limit, search=search)
             pprint(entries)
         else:
-            create_entry(" ".join(args.default_note))
+            entry = create_entry(" ".join(args.default_note))
+            pprint(entry)
 
 
 if __name__ == "__main__":

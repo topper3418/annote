@@ -26,6 +26,7 @@ Your response must be in the following shape:
         start?: "string in the format of YYYY-MM-DD HH:MM estimating the start time of the task",
         end?: "string in the format of YYYY-MM-DD HH:MM estimating the end time of the task",
         children?: [a list of subtasks, if applicable]
+        focus: "true or false, does this seem like something the user intends to put effort or thought into in the immediate future?"
     }}],
     actions?: [{{
         action: "one of the five given options",
@@ -36,7 +37,7 @@ Your response must be in the following shape:
 """
 
 # for example, when the engine cycles it will be shown the context and the  
-def process_entry(entry: dict, context: dict | None) -> dict:
+def process_entry(entry: dict, context: dict | list | None) -> dict:
     prompt = entry_annotation_prompt.format(
         task=json.dumps(context or "no context provided"),
         newEntry=json.dumps(entry)

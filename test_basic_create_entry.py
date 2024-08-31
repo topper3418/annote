@@ -1,7 +1,7 @@
-from src.db.controller import create_entry
+from src.db import Controller
 
 if __name__ == "__main__":
-    print('sanity check')
-    entry = create_entry("Do stuff today")
-    print(entry)
+    with Controller() as conn:
+        entry = conn.create_entry("Do stuff today")
+        print(entry.json())
 
