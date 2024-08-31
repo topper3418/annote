@@ -1,4 +1,4 @@
-from src.engine import cycle_entry_processor
+from src.engine import associate_entry
 
 if __name__ == "__main__":
-    cycle_entry_processor()
+    associate_entry()

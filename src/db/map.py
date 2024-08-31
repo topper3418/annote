@@ -124,15 +124,13 @@ class Action(Base):
         return json_value
 
 
-# TODO: make a class "Processing" that represents a run of the ollama engine. 
-# It should have an entry id, a context id (task), a depth, a process name and a data (json) field
 class Generation(Base):
     __tablename__ = 'generations'
 
     process: Mapped[str] = mapped_column(String)
     data: Mapped[str] = mapped_column(Text)
-    user_comment: Mapped[str] = mapped_column(String)
-    regenerated: Mapped[bool] = mapped_column(Boolean)
+    user_comment: Mapped[str | None] = mapped_column(String)
+    regenerated: Mapped[bool] = mapped_column(Boolean, default=False)
     entry_id: Mapped[int] = mapped_column(ForeignKey('entries.id'), nullable=False)
 
     entry = relationship("Entry", back_populates="generations")

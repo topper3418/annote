@@ -31,9 +31,11 @@ def get_latest_entry(session: Session) -> Entry:
 
 def is_latest_entry(session: Session, entry_id: int) -> bool:
     latest_entry = session.query(Entry).order_by(desc(Entry.id)).first()
+    if latest_entry is None:
+        raise KeyError(f'no matching entry for id {entry_id}')
     return entry_id == latest_entry.id
 
 
-def get_entry(session: Session, entry_id: int) -> Entry:
-    entry = session.query(Entry).where(Entry.id == entry_id).one()
+def get_entry(session: Session, entry_id: int) -> Entry | None:
+    entry = session.query(Entry).where(Entry.id == entry_id).first()
     return entry

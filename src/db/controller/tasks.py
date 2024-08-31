@@ -15,6 +15,7 @@ def create_task(session: Session,
         text=task_dict['text'],
         start=task_dict.get('start'),
         end=task_dict.get('end'),
+        focus=task_dict.get('focus'),
         parent=parent,
         actions=actions
     )
@@ -23,6 +24,11 @@ def create_task(session: Session,
         task.children.append(child_task)
     session.add(task)
     session.commit()
+    return task
+
+
+def get_task(session: Session, task_id: int) -> Task | None:
+    task = session.query(Task).where(Task.id == task_id).first()
     return task
 
 

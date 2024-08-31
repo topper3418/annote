@@ -1,9 +1,14 @@
 from typing import List, Optional
 
-from .tasks import create_task, focus_task, get_focused_tasks
-from .generation import get_latest_generated_entry_id
-from ..map import Entry, Session, Task
+from sqlalchemy.util import generic_repr
+
+from src.db.controller.actions import create_action
+
+from .tasks import create_task, focus_task, get_focused_tasks, get_task
+from .generation import create_generation, get_generations, get_latest_generated_entry_id
+from ..map import Entry, Generation, Session, Task, Action
 from .entries import create_entry, get_entry, get_recent_entries, is_latest_entry
+from src.db.controller import generation
 
 
 class Controller:
@@ -36,7 +41,7 @@ class Controller:
         entry = create_entry(self.session, prompt)
         return entry
 
-    def get_entry(self, entry_id) -> Entry: 
+    def get_entry(self, entry_id) -> Entry | None: 
         self._ensure_session()
         entry = get_entry(self.session, entry_id)
         return entry
@@ -52,6 +57,16 @@ class Controller:
         self._ensure_session()
         return is_latest_entry(self.session, entry_id)
 
+    def create_generation(self, entry: Entry, process: str, data: dict | list) -> Generation:
+        self._ensure_session()
+        generation = create_generation(self.session, entry, process, data)
+        return generation
+
+    def get_generations(self, limit: int = 50) -> List[Generation]:
+        self._ensure_session()
+        generations = get_generations(self.session, limit)
+        return generations
+
     def get_latest_generated_entry_id(self) -> int | None:
         self._ensure_session()
         return get_latest_generated_entry_id(self.session)
@@ -64,6 +79,11 @@ class Controller:
         task = create_task(self.session, task_dict, parent, source)
         return task
 
+    def get_task(self, task_id: int) -> Task:
+        self._ensure_session()
+        task = get_task(self.session, task_id)
+        return task
+
     def focus_task(self, task_id: int, focus: bool = True):
         self._ensure_session()
         task = focus_task(self.session, task_id, focus)
@@ -73,4 +93,12 @@ class Controller:
         self._ensure_session()
         return get_focused_tasks(self.session)
 
+    def create_action(self, 
+                  action: str,
+                  entry: Entry,
+                  task: Task) -> Action:
+        self._ensure_session()
+        action_obj = create_action(self.session, action, entry, task)
+        return action_obj
+        
 

@@ -17,20 +17,23 @@ any sub-tasks this adds, as well any actions this might perform upon them out of
 ["begin", "pause", "complete", "cancel", "annotate"]. annotate will most likely 
 be the most common. 
 
+Do not speculate on what other actions might be required based on the context 
+and prompt, only deal with what the prompt directly implies. 
+
 Your response must be in the following shape: 
 **keys with a ?: separator are optional
 {{
     tasks?: [{{
         text: "a concise string representing the task",
-        parentId: a number matching the id of the parent task it relates to
+        parentId?: a number matching the id of the parent task it relates to
         start?: "string in the format of YYYY-MM-DD HH:MM estimating the start time of the task",
         end?: "string in the format of YYYY-MM-DD HH:MM estimating the end time of the task",
-        children?: [a list of subtasks, if applicable]
+        children?: [a list of subtasks, if applicable. same shape as this task object, but parentId will be implied so do not include it]
         focus: "true or false, does this seem like something the user intends to put effort or thought into in the immediate future?"
     }}],
     actions?: [{{
         action: "one of the five given options",
-        taskId: a number matching the id of the parent task it relates to
+        taskId: a number matching the id of the parent task it relates to. This cannot be any of the tasks returned above, as those will automatically have a "create" action assigned to them. 
     }}]
 }}
 
