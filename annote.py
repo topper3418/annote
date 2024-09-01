@@ -1,3 +1,9 @@
+# TODO: add commands for dev purposes
+# who, besides you is going to use the cli interface long term anyway? 
+# wipe tables
+# show data from tables
+# maybe even run sql queires? 
+
 import argparse
 from pprint import pprint
 from typing import Optional
