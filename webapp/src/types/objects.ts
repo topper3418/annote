@@ -3,7 +3,8 @@ export type Entry = {
     id: number;
     text: string;
     create_time: string;
-    actions?: Action[];
+    actions?: Action[] | string;
+    generations?: Generation[] | string;
 }
 
 export type Task = {
@@ -27,3 +28,14 @@ export type Action = {
     task?: Task;
     entry?: Entry;
 }
+
+export type Generation = {
+    id: number;
+    process: string;
+    data: string | object;
+    user_comment?: string;
+    regenerated?: boolean;
+    entry_id: number;
+    entry: Entry;
+}
+

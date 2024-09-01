@@ -1,10 +1,13 @@
 
-export const formatTime = (dateIn: string | Date | null): string => {
+export const formatDate = (dateIn: string | Date | null): string => {
   if (dateIn == null) return 'N/A';
-  let inputDate = dateIn;
+  let inputDate: Date;
   const today = new Date();
   if (typeof (dateIn) === 'string') {
     inputDate = new Date(dateIn);
+  }
+  else {
+    inputDate = dateIn;
   }
 
   // Check if the date is today
@@ -27,3 +30,5 @@ export const formatTime = (dateIn: string | Date | null): string => {
     return `${month}/${day}`;
   }
 }
+
+

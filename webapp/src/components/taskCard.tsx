@@ -1,7 +1,7 @@
 import React from 'react'
 import { TaskCardInterface } from '../types/components'
 import { Task, Action } from '../types/objects';
-import { formatTime } from '../util';
+import { formatDate } from '../util';
 
 export const ConciseTaskCard: React.FC<TaskCardInterface> = ({ task, setExpandedId: setExpandedId = () => { } }) => {
   const {
@@ -69,8 +69,8 @@ export const TaskCard: React.FC<TaskCardInterface> = ({ task, expandedId: expand
       <div className="row">
         <h2 style={{ width: "80%" }}>{text}</h2>
         <div className="column">
-          <p>Start: {formatTime(start)}</p>
-          <p>End: {formatTime(end)}</p>
+          <p>Start: {formatDate(start)}</p>
+          <p>End: {formatDate(end)}</p>
         </div>
       </div>
       {expandedId == taskId ?
