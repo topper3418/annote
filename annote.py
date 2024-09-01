@@ -1,17 +1,24 @@
 import argparse
+from pprint import pprint
+from src.db import Controller
 
 def print_info():
     print("Annote CLI App v1.0")
 
 def create_note(note):
     print(f"Creating note: {note}")
-    # Logic to create a note in the database
+    with Controller() as db: 
+        new_entry = db.create_entry(note)
+        return new_entry.json()
 
 def show_entries(limit, search=None):
     print(f"Showing the latest {limit} entries")
     if search:
         print(f"Filtering by: {search}")
-    # Logic to query entries from the database
+    with Controller() as db:
+        recent_entries = db.get_recent_entries(limit, search)
+        entries_json = [entry.json() for entry in recent_entries]
+    pprint(entries_json)
 
 def show_generations(limit, search=None):
     print(f"Showing the latest {limit} generations")
