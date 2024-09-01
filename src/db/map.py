@@ -50,8 +50,10 @@ class Entry(Base):
         }
         if recurse == 1:
             json_value["actions"] = [action.action for action in self.actions]
+            json_value["generations"] = [generation.process for generation in self.generations]
         elif recurse > 1:
             json_value["actions"] = [action.json(recurse-1) for action in self.actions]
+            json_value["generations"] = [generation.json(recurse-1) for generation in self.generations]
         return json_value
             
 

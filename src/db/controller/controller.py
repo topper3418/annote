@@ -79,7 +79,7 @@ class Controller:
         task = create_task(self.session, task_dict, parent, source)
         return task
 
-    def get_task(self, task_id: int) -> Task:
+    def get_task(self, task_id: int) -> Task | None:
         self._ensure_session()
         task = get_task(self.session, task_id)
         return task
