@@ -6,6 +6,46 @@ import ollama
 
 
 entry_annotation_prompt = """\
+You are responsible for taking in thoughts throughout the day, and creating an outline for
+what the user plans to do and ends up doing throughout the day. Your output shall only be
+in json format for the "response" interface, defined by the following typescript-style 
+schema: 
+
+interface response {{
+    tasks?: task[];
+    actions?: action[];
+}}
+
+interface task {{
+    text: string; // a concise string representing the task
+    parentId?: number; // a number matching the id of the parent task it relates to
+    start?: string; // string in the format of YYYY-MM-DD HH:MM estimating the start time of the task
+    end?: string; // string in the format of YYYY-MM-DD HH:MM estimating the end time of the task,
+    children?: task[]; // a list of subtasks, if applicable. same shape as this task object, but parentId will be implied so do not include it
+    focus: boolean; // does this seem like something the user intends to put effort or thought into in the immediate future?
+}}    
+
+enum action_str {{
+    begin = "begin",
+    pause = "pause",
+    complete = "complete",
+    cancel = "cancel",
+    note = "note"
+}}
+
+interface action {{
+    action: action_str; // what does this entry seem to do to this task?
+    taskId: number; // a number matching the id of the parent task it relates to. This cannot be any of the tasks returned, as those will automatically have a "create" action assigned to them. 
+}}
+
+
+Your responses also must follow these rules: 
+1) no hallucination or creativity. You are responsible for taking the words I give and giving them structure, not for extrapolation. For example: if an entry says "I need to polish my coding project", you should respond with a single structured task "polish coding project". you should NOT respond with the "polish coding project" task with children "create documentation" and "fill out tests". If I wanted that in the response the entry would be "I need to polish my coding project by creating documentation and filling out tests". Then, the nested response would be acceptable
+2) start time is occasionally okay to guess, but only when time is mentioned in the entry. For example if I say "I should mow the lawn tomorrow morning", an 8am time for tomorrow morning can be attached, and I can change it around later. 
+3) end time is okay to guess when there is a start time, but again that should only be if it's mentioned. If I say "tomorrow morning I should spend a little bit tidying the kitchen", a morning start time and a 20-minute-later end time would be okay, depending on how long a task like that should take.
+
+And now to the prompt:
+
 Given this context: 
 {task}
 
@@ -14,30 +54,8 @@ Please consider this prompt:
 
 I would like for you to consider the task and nested subtasks shown and think of 
 any sub-tasks this adds, as well any actions this might perform upon them out of 
-["begin", "pause", "complete", "cancel", "note"]. "create" is not an action 
-you are allowed to generate, as any tasks you create will implicitly be created
-by that entry. note will most likely be the most common, as it is essentially 
-just a thought
+the examples in the action_str enum.
 
-Do not speculate on what other actions might be required based on the context 
-and prompt, only deal with what the prompt directly implies. 
-
-Your response must be in the following shape: 
-**keys with a ?: separator are optional
-{{
-    tasks?: [{{
-        text: "a concise string representing the task",
-        parentId?: a number matching the id of the parent task it relates to
-        start?: "string in the format of YYYY-MM-DD HH:MM estimating the start time of the task",
-        end?: "string in the format of YYYY-MM-DD HH:MM estimating the end time of the task",
-        children?: [a list of subtasks, if applicable. same shape as this task object, but parentId will be implied so do not include it]
-        focus: "true or false, does this seem like something the user intends to put effort or thought into in the immediate future?"
-    }}],
-    actions?: [{{
-        action: "one of the five given options",
-        taskId: a number matching the id of the parent task it relates to. This cannot be any of the tasks returned above, as those will automatically have a "create" action assigned to them. 
-    }}]
-}}
 
 """
 

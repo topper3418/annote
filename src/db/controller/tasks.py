@@ -58,6 +58,8 @@ def get_focused_tasks(session: Session):
     tasks = session.query(Task).where(Task.focus == True).all()
     return tasks
 
+# TODO: GET ALL TASKS
+
 
 def wipe_tasks(session: Session):
     """straight up deletes all tasks. I made this for dev purposes only"""

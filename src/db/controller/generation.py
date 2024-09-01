@@ -27,7 +27,7 @@ def get_latest_generated_entry_id(session: Session) -> int | None:
     return highest_generation.entry_id if highest_generation is not None else None
 
 
-def wipe_generations(session: Session) -> int | None:
+def wipe_generations(session: Session):
     """straight up deletes all generations. I made this for dev purposes only"""
     session.query(Generation).delete()
     session.commit()
