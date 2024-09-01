@@ -3,7 +3,7 @@ from flask import Flask, jsonify, request, abort
 from flask_cors import CORS
 
 from ..db.map import Task, Entry
-from ..db.controller import get_top_level_tasks_json, get_recent_entries_json
+from ..db import Controller
 
 app = Flask(__name__)
 CORS(app)
@@ -22,14 +22,18 @@ def ping():
 
 @app.route('/tasks', methods=['GET'])
 def get_tasks():
-    tasks = get_top_level_tasks_json(recurse=3)
-    return jsonify({ "data": { "tasks": tasks } })
+    with Controller() as conn:
+        tasks = conn.get_focused_tasks()
+        tasks_json = [task.json(recurse=3) for task in tasks]
+    return jsonify({ "data": { "tasks": tasks_json } })
 
 
 @app.route('/entries', methods=['GET'])
 def get_entries():
-    entries = get_recent_entries_json()
-    return jsonify({ "data": { "entries": entries } })
+    with Controller() as conn:
+        entries = conn.get_recent_entries()
+        entries_json = [entry.json(recurse=1) for entry in entries]
+    return jsonify({ "data": { "entries": entries_json } })
 
 # @app.route('/<int:task_id>', methods=['GET'])
 # def get_task(task_id):
