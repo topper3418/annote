@@ -35,6 +35,9 @@ def get_entries():
         entries_json = [entry.json(recurse=1) for entry in entries]
     return jsonify({ "data": { "entries": entries_json } })
 
+# TODO: make a route for "latest" which gives the 
+# latest object from each table. 
+
 # @app.route('/<int:task_id>', methods=['GET'])
 # def get_task(task_id):
 #     task = Task.query.get_or_404(task_id)

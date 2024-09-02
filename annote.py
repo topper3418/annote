@@ -91,7 +91,6 @@ def main():
     elif args.subcommand == "query":
         limit = args.l
         search = args.s
-        
         if args.g:
             show_generations(limit, search)
         elif args.t:
