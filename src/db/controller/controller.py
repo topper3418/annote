@@ -2,10 +2,10 @@ from typing import List, Optional
 
 from sqlalchemy.util import generic_repr
 
-from src.db.controller.actions import create_action
+from src.db.controller.actions import create_action, wipe_actions
 
-from .tasks import create_task, focus_task, get_focused_tasks, get_task
-from .generation import create_generation, get_generations, get_latest_generated_entry_id
+from .tasks import create_task, focus_task, get_focused_tasks, get_task, wipe_tasks
+from .generation import create_generation, get_generations, get_latest_generated_entry_id, wipe_generations
 from ..map import Entry, Generation, Session, Task, Action
 from .entries import create_entry, get_entry, get_recent_entries, is_latest_entry
 from src.db.controller import generation
@@ -100,5 +100,9 @@ class Controller:
         self._ensure_session()
         action_obj = create_action(self.session, action, entry, task)
         return action_obj
-        
 
+    def reset_annotations(self):
+        self._ensure_session()
+        wipe_generations(self.session)
+        wipe_actions(self.session)
+        wipe_tasks(self.session)

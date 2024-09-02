@@ -24,20 +24,26 @@ def show_generations(limit, search=None):
     print(f"Showing the latest {limit} generations")
     if search:
         print(f"Filtering by: {search}")
-    # Logic to query generations from the database
+    with Controller() as conn:
+        generations = conn.get_generations()
+        pprint([generation.json(recurse=1) for generation in generations])
 
 def show_tasks(limit, search=None, focused=True):
     focus_state = "focused" if focused else "unfocused"
     print(f"Showing the latest {limit} {focus_state} tasks")
     if search:
         print(f"Filtering by: {search}")
-    # Logic to query tasks from the database
+    with Controller() as conn:
+        tasks = conn.get_focused_tasks()
+        pprint([task.json(recurse=2) for task in tasks])
 
 def flush_annotations():
     confirm = input("Are you sure you want to wipe all tables besides entries? Type 'yes' to confirm: ")
     if confirm.lower() == 'yes':
         print("Flushing annotations...")
-        # Logic to wipe annotations tables
+        with Controller() as conn:
+            conn.reset_annotations()
+        print("done")
     else:
         print("Operation canceled.")
 
@@ -65,9 +71,10 @@ def main():
     parser_query.add_argument("-t", action="store_true", help="Query tasks")
     parser_query.add_argument("-f", type=str, choices=["true", "false"], help="Filter focused tasks", default="true")
 
-    # Delete related subcommands
-    parser_delete = subparsers.add_parser("delete", help="Delete annotations")
-    parser_delete.add_argument("--flush-annotations", action="store_true", help="Flush all annotations")
+    # dev related subcommands
+    parser_dev = subparsers.add_parser("dev", help="Misc dev utilities")
+    parser_dev.add_argument("--flush-annotations", action="store_true", help="Flush all annotations")
+    parser_dev.add_argument("--cycle-next-entry", action="store_true", help="Cycle the engine once")
 
     # Run a command
     parser_command = subparsers.add_parser("command", help="Run a command")
@@ -90,8 +97,11 @@ def main():
             show_tasks(limit, search, focused)
         else:
             show_entries(limit, search)
-    elif args.subcommand == "delete" and args.flush_annotations:
-        flush_annotations()
+    elif args.subcommand == "dev":
+        if args.flush_annotations:
+            flush_annotations()
+        elif args.cycle_engine:
+            cycle_engine()
     elif args.subcommand == "command":
         run_command(args.command)
     else:
