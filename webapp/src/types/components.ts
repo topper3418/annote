@@ -56,3 +56,9 @@ export interface EntryCardInterface {
     setSelectedId?: (entryId: number | null | undefined) => void;
 }
 
+export interface InputBoxInterface {
+    submitCallback: (newEntry: string) => void;
+    entry: string;
+    setNewEntry: (newEntry: string) => void;
+}
+

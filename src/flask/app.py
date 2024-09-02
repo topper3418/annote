@@ -19,7 +19,6 @@ CORS(app)
 def ping():
     return "I am here!"
 
-
 @app.route('/tasks', methods=['GET'])
 def get_tasks():
     with Controller() as conn:
@@ -28,12 +27,37 @@ def get_tasks():
     return jsonify({ "data": { "tasks": tasks_json } })
 
 
-@app.route('/entries', methods=['GET'])
+# @app.route('/entries', methods=['GET'])
 def get_entries():
     with Controller() as conn:
         entries = conn.get_recent_entries()
         entries_json = [entry.json(recurse=1) for entry in entries]
-    return jsonify({ "data": { "entries": entries_json } })
+    return entries_json
+
+# @app.route('/entries', methods=['POST'])
+def create_entry():
+    data = request.get_json()
+    print('received data: ', data)
+    entry = data.get('entry', {})
+    print('got entry: ', entry)
+    if not entry:
+        return jsonify({"error": "entry field is required"}), 400
+    with Controller() as conn:
+        entry_object = conn.create_entry(entry)
+        entry_json = entry_object.json(recurse=1)
+    return entry_json
+
+
+@app.route('/entries', methods=['GET', 'POST'])
+def route_entries():
+    if request.method == "GET":
+        entries = get_entries()
+        return jsonify({ "data": { "entries": entries } })
+    elif request.method == "POST":
+        entry = create_entry()
+        # return create_entry()
+        return jsonify(entry)
+
 
 
 @app.route('/latest', methods=['GET'])

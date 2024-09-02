@@ -36,13 +36,11 @@ const useGetAppData = (): GetAppDataHookInterface => {
             entriesRefetch()
             tasksRefetch()
         }
-        else console.log('no need to refresh!')
         latest.current = newLatest;
     }
 
 
     const refetch = () => {
-        console.log('checking for updates...')
         setLatestLoading(true);
 
         fetch('http://127.0.0.1:2000/latest')

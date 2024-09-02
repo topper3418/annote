@@ -1,4 +1,4 @@
-div, p, h1, h2, h3, h4, body {
+div, p, h1, h2, h3, h4, body, input, button, textarea {
   background-color: black;
   color: white;
 }
@@ -9,6 +9,7 @@ div, p {
   padding: 0;
 }
 
+
 #root {
   display: flex;
   flex-direction: column;
@@ -16,6 +17,7 @@ div, p {
   padding: 0;
   overflow-y: auto;
   overflow-x: hidden;
+  height: 100vh;
 }
 
 .padded {
