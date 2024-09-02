@@ -61,8 +61,6 @@ def get_entry_association_context() -> EntryAssociationContext:
 
 
 def create_objects_from_ollama_response(response: dict, context: EntryAssociationContext):
-    print('response passed in: ')
-    pprint(response)
     # ensure the context is populated
     if context.entry is None:
         raise Exception('no entry provided for the context')

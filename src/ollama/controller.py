@@ -43,7 +43,7 @@ interface action {{
 Your responses also must follow these rules: 
 
 1) if a time is not mentioned, do not provide a time or a time estimate for a task created
-2) do not repeat back any tasks that are already given in the context. 
+2) you must never submit a task back that is already present in the context
 3) do not extrapolate beyond what is given in each entry. your job is cleanup and organization, not inference. 
 4) you must never pass a "create" action.
 
