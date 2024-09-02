@@ -21,6 +21,12 @@ def get_generations(session: Session, limit: int = 50) -> List[Generation]:
     return generations
 
 
+def get_latest_generation(session: Session) -> Generation | None:
+    """gets the highest entry id that has been processed. not to be confused with the most recently processed entry id"""
+    generation = session.query(Generation).order_by(desc(Generation.entry_id)).first()
+    return generation
+
+
 def get_latest_generated_entry_id(session: Session) -> int | None:
     """gets the highest entry id that has been processed. not to be confused with the most recently processed entry id"""
     highest_generation = session.query(Generation).order_by(desc(Generation.entry_id)).first()

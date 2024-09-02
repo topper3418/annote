@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
 import { GetTasksHookInterface, TaskQueryInterface } from '../types/components';
-import { Task } from "../types/objects";
+import { TaskInterface } from "../types/objects";
 
 
 const useGetTasks = (): GetTasksHookInterface => {
-    const [tasks, setTasks] = useState<Task[]>([]);
+    const [tasks, setTasks] = useState<TaskInterface[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [trigger, setTrigger] = useState(0);

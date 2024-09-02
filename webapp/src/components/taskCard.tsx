@@ -1,6 +1,6 @@
 import React from 'react'
 import { TaskCardInterface } from '../types/components'
-import { Task, Action } from '../types/objects';
+import { TaskInterface, ActionInterface } from '../types/objects';
 import { formatDate } from '../util';
 
 export const ConciseTaskCard: React.FC<TaskCardInterface> = ({ task, setExpandedId: setExpandedId = () => { } }) => {
@@ -43,7 +43,7 @@ export const TaskCard: React.FC<TaskCardInterface> = ({ task, expandedId: expand
         <div className="column half-width">
           <p>Children:</p>
           <ul>
-            {children && children.map((child: Task) => (
+            {children && children.map((child: TaskInterface) => (
               <li key={child.id}>
                 <ConciseTaskCard task={child} />
               </li>
@@ -52,7 +52,7 @@ export const TaskCard: React.FC<TaskCardInterface> = ({ task, expandedId: expand
         </div>
         <div className="column half-width">
           <p>Entries:</p>
-          {actions && actions.map((action: Action) => (
+          {actions && actions.map((action: ActionInterface) => (
             <p key={action.id}>{action?.entry?.text}</p>
           ))}
         </div>

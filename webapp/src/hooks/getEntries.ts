@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
 import { GetEntriesHookInterface, EntryQueryInterface } from '../types/components';
-import { Entry } from "../types/objects";
+import { EntryInterface } from "../types/objects";
 
 
 const useGetEntries = (): GetEntriesHookInterface => {
-    const [entries, setEntries] = useState<Entry[]>([]);
+    const [entries, setEntries] = useState<EntryInterface[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [trigger, setTrigger] = useState(0);

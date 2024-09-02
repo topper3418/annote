@@ -1,4 +1,4 @@
-import { Entry, Task, Action } from './objects';
+import { EntryInterface, TaskInterface, ActionInterface, GenerationInterface } from './objects';
 
 
 export interface BasicFetchHookInterface {
@@ -8,33 +8,50 @@ export interface BasicFetchHookInterface {
 }
 
 export interface GetTasksHookInterface extends BasicFetchHookInterface {
-    tasks: Task[];
+    tasks: TaskInterface[];
 }
 
 export interface GetEntriesHookInterface extends BasicFetchHookInterface {
-    entries: Entry[];
+    entries: EntryInterface[];
+}
+
+export interface GetAppDataHookInterface extends BasicFetchHookInterface {
+    entries: EntryInterface[];
+    entriesLoading: boolean;
+    entriesError: string | null;
+    tasks: TaskInterface[];
+    tasksLoading: boolean;
+    tasksError: string | null;
 }
 
 export interface TaskQueryInterface {
     data: {
-        tasks: Task[];
+        tasks: TaskInterface[];
     }
 }
 
 export interface EntryQueryInterface {
     data: {
-        entries: Entry[];
+        entries: EntryInterface[];
+    }
+}
+
+export interface LatestQueryInterface {
+    data: {
+        entry: number;
+        task: number;
+        generation: number;
     }
 }
 
 export interface TaskCardInterface {
-    task: Task;
+    task: TaskInterface;
     expandedId?: number | null;
     setExpandedId?: (taskId: number | null) => void;
 }
 
 export interface EntryCardInterface {
-    entry: Entry;
+    entry: EntryInterface;
     selectedId?: number | null;
     setSelectedId?: (entryId: number | null | undefined) => void;
 }

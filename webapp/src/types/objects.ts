@@ -1,13 +1,13 @@
 
-export type Entry = {
+export type EntryInterface = {
     id: number;
     text: string;
     create_time: string;
-    actions?: Action[] | string;
-    generations?: Generation[] | string;
+    actions?: ActionInterface[] | string;
+    generations?: GenerationInterface[] | string;
 }
 
-export type Task = {
+export type TaskInterface = {
     id: number;
     text: string;
     start: string | null;
@@ -15,27 +15,27 @@ export type Task = {
     status: string;
     focus?: boolean;
     parent_id?: number | null;
-    actions?: Action[];
-    parent?: Task | null;
-    children?: Task[];
+    actions?: ActionInterface[];
+    parent?: TaskInterface | null;
+    children?: TaskInterface[];
 }
 
-export type Action = {
+export type ActionInterface = {
     id: number;
     action: string;
     task_id: number;
     entry_id: number;
-    task?: Task;
-    entry?: Entry;
+    task?: TaskInterface;
+    entry?: EntryInterface;
 }
 
-export type Generation = {
+export type GenerationInterface = {
     id: number;
     process: string;
     data: string | object;
     user_comment?: string;
     regenerated?: boolean;
     entry_id: number;
-    entry: Entry;
+    entry: EntryInterface;
 }
 

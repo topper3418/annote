@@ -25,7 +25,7 @@ def get_recent_entries(session: Session,
 
 def get_latest_entry(session: Session) -> Entry:
     query = session.query(Entry).order_by(desc(Entry.id))
-    entry = query.one()
+    entry = query.first()
     return entry
 
 

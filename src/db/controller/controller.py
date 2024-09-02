@@ -4,10 +4,10 @@ from sqlalchemy.util import generic_repr
 
 from src.db.controller.actions import create_action, wipe_actions
 
-from .tasks import create_task, focus_task, get_focused_tasks, get_task, search_task, wipe_tasks
-from .generation import create_generation, get_generations, get_latest_generated_entry_id, wipe_generations
+from .tasks import create_task, focus_task, get_focused_tasks, get_latest_task, get_task, search_task, wipe_tasks
+from .generation import create_generation, get_generations, get_latest_generated_entry_id, get_latest_generation, wipe_generations
 from ..map import Entry, Generation, Session, Task, Action
-from .entries import create_entry, get_entry, get_recent_entries, is_latest_entry
+from .entries import create_entry, get_entry, get_latest_entry, get_recent_entries, is_latest_entry
 from src.db.controller import generation
 
 
@@ -45,6 +45,17 @@ class Controller:
         self._ensure_session()
         entry = get_entry(self.session, entry_id)
         return entry
+
+    def get_latest(self) -> dict:
+        self._ensure_session()
+        entry = get_latest_entry(self.session)
+        generation = get_latest_generation(self.session)
+        task = get_latest_task(self.session)
+        return {
+                'entry': entry.id,
+                'generation': generation.id if generation is not None else None,
+                'task': task.id if task is not None else None
+        }
 
     def get_recent_entries(self, 
                            limit: int = 50, 

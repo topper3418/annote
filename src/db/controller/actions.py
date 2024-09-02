@@ -4,11 +4,11 @@ from ..map import Task, Entry, Action
 
 
 def create_action(session: Session,
-                  action: str,
+                  action_str: str,
                   entry: Entry,
                   task: Task) -> Action:
-    action = Action(
-        action=action,
+    action= Action(
+        action=action_str,
         task=task,
         entry=entry
     )

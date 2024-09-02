@@ -1,4 +1,5 @@
 from datetime import datetime
+from sqlalchemy import desc
 from sqlalchemy.orm import Session
 from typing import List
 
@@ -37,6 +38,10 @@ def create_task(session: Session,
 
 def get_task(session: Session, task_id: int) -> Task | None:
     task = session.query(Task).where(Task.id == task_id).first()
+    return task
+
+def get_latest_task(session: Session) -> Task | None:
+    task = session.query(Task).order_by(desc(Task.id)).first()
     return task
 
 
