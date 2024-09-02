@@ -1,4 +1,5 @@
 from pprint import pprint
+from typing import List
 
 from sqlalchemy import Column, Integer, String, DateTime, Boolean, ForeignKey, Text, create_engine
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship, sessionmaker, object_session
@@ -84,7 +85,7 @@ class Task(Base):
     def __repr__(self):
         return f"<Task(text='{self.text}', start='{self.start}', end='{self.end}')>"
     
-    def json(self, recurse=0):
+    def json(self, recurse: int=0, suppress: List = []):
         if recurse > 5:
             raise ValueError(f'max recurse is 4, {recurse} is too high')
         json_value = {
@@ -95,13 +96,19 @@ class Task(Base):
             "focus": self.focus,
         }
         if recurse == 1:
-            json_value["actions"] = [action.action for action in self.actions]
-            json_value["children"] = [child.text for child in self.children]
-            json_value["parent"] = self.parent.text if self.parent else None
+            if 'actions' not in suppress:
+                json_value["actions"] = [action.action for action in self.actions]
+            if 'children' not in suppress:
+                json_value["children"] = [child.text for child in self.children]
+            if 'parent' not in suppress: 
+                json_value["parent"] = self.parent.text if self.parent else None
         elif recurse > 1:
-            json_value["actions"] = [action.json(recurse-1) for action in self.actions]
-            json_value["children"] = [child.json(recurse-1) for child in self.children]
-            json_value["parent"] = self.parent.json(recurse-1) if self.parent else None
+            if 'actions' not in suppress:
+                json_value["actions"] = [action.json(recurse-1) for action in self.actions]
+            if 'children' not in suppress:
+                json_value["children"] = [child.json(recurse-1) for child in self.children]
+            if 'parent' not in suppress: 
+                json_value["parent"] = self.parent.json(recurse-1) if self.parent else None
         return json_value
 
 

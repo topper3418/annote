@@ -2,6 +2,8 @@ from datetime import datetime
 from sqlalchemy.orm import Session
 from typing import List
 
+from sqlalchemy.sql.operators import ilike_op
+
 from ...util import parse_date
 from ..map import Task, Entry, Action
 
@@ -35,6 +37,14 @@ def create_task(session: Session,
 
 def get_task(session: Session, task_id: int) -> Task | None:
     task = session.query(Task).where(Task.id == task_id).first()
+    return task
+
+
+def search_task(session: Session, search_str: str) -> Task | None:
+    """searches first for focused tasks, then if no match searches all tasks. Either way returns first match or None. """
+    task = session.query(Task).where(Task.focus == True).filter(Task.text.ilike(f'%{search_str}%')).first()
+    if task is None:
+        task = session.query(Task).filter(Task.text.ilike(f'%{search_str}%')).first()
     return task
 
 

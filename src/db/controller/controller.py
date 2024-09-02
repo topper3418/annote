@@ -4,7 +4,7 @@ from sqlalchemy.util import generic_repr
 
 from src.db.controller.actions import create_action, wipe_actions
 
-from .tasks import create_task, focus_task, get_focused_tasks, get_task, wipe_tasks
+from .tasks import create_task, focus_task, get_focused_tasks, get_task, search_task, wipe_tasks
 from .generation import create_generation, get_generations, get_latest_generated_entry_id, wipe_generations
 from ..map import Entry, Generation, Session, Task, Action
 from .entries import create_entry, get_entry, get_recent_entries, is_latest_entry
@@ -82,6 +82,11 @@ class Controller:
     def get_task(self, task_id: int) -> Task | None:
         self._ensure_session()
         task = get_task(self.session, task_id)
+        return task
+
+    def search_task(self, search_str: str) -> Task | None:
+        self._ensure_session()
+        task = search_task(self.session, search_str)
         return task
 
     def focus_task(self, task_id: int, focus: bool = True):

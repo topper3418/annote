@@ -22,7 +22,7 @@ class EntryAssociationContext:
         if not self.entry.is_connected_to_session():
             raise Exception('attempted to get json when session is disconnected')
         self.entry_json = self.entry.json()
-        self.context_json = [task.json(recurse=2) for task in self.context]
+        self.context_json = [task.json(recurse=2, suppress=['actions']) for task in self.context]
         
 
 
@@ -61,6 +61,8 @@ def get_entry_association_context() -> EntryAssociationContext:
 
 
 def create_objects_from_ollama_response(response: dict, context: EntryAssociationContext):
+    print('response passed in: ')
+    pprint(response)
     # ensure the context is populated
     if context.entry is None:
         raise Exception('no entry provided for the context')
@@ -82,9 +84,9 @@ def create_objects_from_ollama_response(response: dict, context: EntryAssociatio
         new_tasks_json = []
         for task_dict in new_tasks:
             # if it gives a parent id, check that. 
-            parent_id = task_dict.get('parentId')
-            if parent_id:
-                parent = conn.get_task(parent_id)
+            parent_name = task_dict.get('parentName')
+            if parent_name:
+                parent = conn.search_task(parent_name)
             else:
                 parent = None
 
@@ -102,7 +104,7 @@ def create_objects_from_ollama_response(response: dict, context: EntryAssociatio
             new_actions = response.get('actions', [])
             for action_dict in new_actions:
                 # it has to be linking a task id, so check it
-                task = conn.get_task(action_dict.get('taskId'))
+                task = conn.search_task(action_dict.get('taskName'))
                 if not task:
                     print(f'ERROR: failed to get task for action: {action_dict}')
                     continue
@@ -129,9 +131,10 @@ def associate_entry():
     if context.entry is None:
         return
 
-    # release the db connection and prompt the model
-    # response = process_entry(next_entry_json, focused_tasks).get('response', {})
-    response = process_entry(context.entry_json, context.context_json).get('response', {})
+    response = process_entry(context.entry_json, context.context_json)
+    if 'response' in response:
+        response = response.get('response', {})
+    
 
     try:
         create_objects_from_ollama_response(response, context)
