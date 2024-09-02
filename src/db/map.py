@@ -1,7 +1,7 @@
 from pprint import pprint
 
 from sqlalchemy import Column, Integer, String, DateTime, Boolean, ForeignKey, Text, create_engine
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship, sessionmaker
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship, sessionmaker, object_session
 from datetime import datetime
 
 
@@ -12,6 +12,11 @@ Session = sessionmaker(bind=engine)
 
 class Base(DeclarativeBase):
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+
+    def is_connected_to_session(self) -> bool:
+        session = object_session(self)
+        return session is not None and session.is_active
+
 
 
 ###################################################################################

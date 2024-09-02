@@ -1,6 +1,7 @@
 import argparse
 from pprint import pprint
 from src.db import Controller
+from src.engine import associate_entry
 
 def print_info():
     print("Annote CLI App v1.0")
@@ -100,8 +101,8 @@ def main():
     elif args.subcommand == "dev":
         if args.flush_annotations:
             flush_annotations()
-        elif args.cycle_engine:
-            cycle_engine()
+        elif args.cycle_next_entry:
+            associate_entry()
     elif args.subcommand == "command":
         run_command(args.command)
     else:

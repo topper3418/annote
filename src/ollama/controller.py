@@ -19,8 +19,8 @@ interface response {{
 interface task {{
     text: string; // a concise string representing the task
     parentId?: number; // a number matching the id of the parent task it relates to
-    start?: string; // string in the format of YYYY-MM-DD HH:MM estimating the start time of the task
-    end?: string; // string in the format of YYYY-MM-DD HH:MM estimating the end time of the task,
+    start?: string; // string in the format of "%m/%d/%y %H:%M" estimating the start time of the task
+    end?: string; // string in the format of "%m/%d/%y %H:%M" estimating the end time of the task,
     children?: task[]; // a list of subtasks, if applicable. same shape as this task object, but parentId will be implied so do not include it
     focus: boolean; // does this seem like something the user intends to put effort or thought into in the immediate future?
 }}    
@@ -56,7 +56,6 @@ I would like for you to consider the task and nested subtasks shown and think of
 any sub-tasks this adds, as well any actions this might perform upon them out of 
 the examples in the action_str enum.
 
-
 """
 
 # for example, when the engine cycles it will be shown the context and the  
@@ -79,5 +78,57 @@ def process_entry(entry: dict, context: dict | list | None) -> dict:
     print("\nRESPONSE")
     pprint(parsed_response)
     return parsed_response
+
+entry_correction_prompt = """
+you previously responded to the following prompt in a way that caused an error: 
+
+############################# Original Prompt ################################
+
+{original_prompt}
+
+######################### End of Original Prompt #############################
+
+your response was:
+
+{response}
+
+Unfortunately, this response resulted in the following error: 
+
+{error}
+
+Please try to address the error by generating a corrected response
+"""
+
+
+def attempt_to_fix_entry_processing(entry: dict, 
+                                    context: dict | list | None,
+                                    original_response: dict,
+                                    original_error: str) -> dict:
+    original_prompt = entry_annotation_prompt.format(
+        task=json.dumps(context or "no context provided"),
+        newEntry=json.dumps(entry)
+    )
+
+    prompt = entry_correction_prompt.format(
+        original_prompt=original_prompt,
+        response=json.dumps(original_response),
+        error=original_error
+    )
+
+    print("PROMPTING")
+    print(prompt)
+    response = ollama.generate(
+        prompt=prompt,
+        format='json',
+        model='llama3.1',
+        options={ 'temperature': 0 },
+        stream=False
+    )
+
+    parsed_response = json.loads(response['response'])
+    print("\nRESPONSE")
+    pprint(parsed_response)
+    return parsed_response
+    
 
 
