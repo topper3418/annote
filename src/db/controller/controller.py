@@ -6,7 +6,7 @@ from src.db.controller.actions import create_action, wipe_actions
 
 from .tasks import create_task, focus_task, get_focused_tasks, get_latest_task, get_task, search_task, wipe_tasks
 from .generation import create_generation, get_generations, get_latest_generated_entry_id, get_latest_generation, wipe_generations
-from ..map import Entry, Generation, Session, Task, Action
+from ..map import Entry, Generation, Session, Task, Action, Base, engine
 from .entries import create_entry, get_entry, get_latest_entry, get_recent_entries, is_latest_entry
 from src.db.controller import generation
 
@@ -122,3 +122,7 @@ class Controller:
         wipe_generations(self.session)
         wipe_actions(self.session)
         wipe_tasks(self.session)
+
+    @classmethod
+    def wipe_database(cls):
+        Base.metadata.drop_all(engine)

@@ -17,10 +17,10 @@ def create_entry(note):
 def load_entries(filename):
     filepath = os.path.join('data', filename)
     print(f"loading entries from {filepath}")
-    with open(filepath, r) as file:
+    with open(filepath, 'r') as file:
         entries = file.readlines()
     with Controller() as db:
-        new_entries = [db.create_entry(entry) for entry in entries]
+        new_entries = [db.create_entry(entry.strip('\n')) for entry in entries]
         entries_json = [entry.json() for entry in new_entries]
     pprint(entries_json)
 
@@ -60,6 +60,15 @@ def flush_annotations():
     else:
         print("Operation canceled.")
 
+def delete_database():
+    confirm = input("Are you sure you want to delete the database? Type 'yes' to confirm: ")
+    if confirm.lower() == 'yes':
+        print("deleting database...")
+        Controller.wipe_database()
+        print("done")
+    else:
+        print("Operation canceled.")
+
 def run_command(command):
     print(f"Running command: {command}")
     # Logic to run a command
@@ -87,8 +96,10 @@ def main():
     # dev related subcommands
     parser_dev = subparsers.add_parser("dev", help="Misc dev utilities")
     parser_dev.add_argument("--flush-annotations", action="store_true", help="Flush all annotations")
+    # TODO: make it so that this can be done with any database in the future
+    parser_dev.add_argument("--delete-database", action="store_true", help="Flush all annotations")
     parser_dev.add_argument("--cycle-next-entry", action="store_true", help="Cycle the engine once")
-    parser_dev.add_argument("--load", '-l', action="store_true", help="upload a list of \\n-separated entries to the db")
+    parser_dev.add_argument("--load", '-l', type=str, help="upload a list of \\n-separated entries to the db")
 
     # Run a command
     parser_command = subparsers.add_parser("command", help="Run a command")
@@ -113,11 +124,12 @@ def main():
     elif args.subcommand == "dev":
         if args.flush_annotations:
             flush_annotations()
+        if args.delete_database:
+            delete_database()
         elif args.cycle_next_entry:
             associate_entry()
         elif args.load:
-            
-            load_entries()
+            load_entries(args.load)
     elif args.subcommand == "command":
         run_command(args.command)
     else:
