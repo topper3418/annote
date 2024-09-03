@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import argparse
+import os
 from pprint import pprint
 from src.db import Controller
 from src.engine import associate_entry
@@ -7,11 +8,21 @@ from src.engine import associate_entry
 def print_info():
     print("Annote CLI App v1.0")
 
-def create_note(note):
+def create_entry(note):
     print(f"Creating note: {note}")
     with Controller() as db: 
         new_entry = db.create_entry(note)
         return new_entry.json()
+
+def load_entries(filename):
+    filepath = os.path.join('data', filename)
+    print(f"loading entries from {filepath}")
+    with open(filepath, r) as file:
+        entries = file.readlines()
+    with Controller() as db:
+        new_entries = [db.create_entry(entry) for entry in entries]
+        entries_json = [entry.json() for entry in new_entries]
+    pprint(entries_json)
 
 def show_entries(limit, search=None):
     print(f"Showing the latest {limit} entries")
@@ -77,6 +88,7 @@ def main():
     parser_dev = subparsers.add_parser("dev", help="Misc dev utilities")
     parser_dev.add_argument("--flush-annotations", action="store_true", help="Flush all annotations")
     parser_dev.add_argument("--cycle-next-entry", action="store_true", help="Cycle the engine once")
+    parser_dev.add_argument("--load", '-l', action="store_true", help="upload a list of \\n-separated entries to the db")
 
     # Run a command
     parser_command = subparsers.add_parser("command", help="Run a command")
@@ -87,7 +99,7 @@ def main():
     if args.subcommand == "annote":
         print_info()
     elif args.subcommand == "note":
-        create_note(args.note)
+        create_entry(args.note)
     elif args.subcommand == "query":
         limit = args.l
         search = args.s
@@ -103,6 +115,9 @@ def main():
             flush_annotations()
         elif args.cycle_next_entry:
             associate_entry()
+        elif args.load:
+            
+            load_entries()
     elif args.subcommand == "command":
         run_command(args.command)
     else:
