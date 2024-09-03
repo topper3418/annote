@@ -1,0 +1,15 @@
+Ok so I need to make this into a new framework 
+
+I should make a generalizable type structuring system so that I can pass it in a pythonic, consistent way
+I should make a primary prompt that focuses on getting the information we want
+ISM a secondary prompt that forms it into
+ISM a generalized way to add postprocessing and desired output
+ISM a way to pass in error handling and a secondary prompt
+
+
+just solve this first problem first though. 
+
+process the entry using words. ask it to list off things and levels of confidence, as we would before. 
+then either make that something thats attached to the types or just kinda have it set as a static filter where stuff is made or not. 
+I think probably the best method would be to have them attach a confidence level to each and have the user approve or disapprove
+Then we can have the json-forcing prompt go from there. 
