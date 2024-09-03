@@ -74,10 +74,14 @@ class Task(Base):
     end: Mapped[datetime | None] = mapped_column(DateTime)
     status: Mapped[str] = mapped_column(String, default="new")
     focus: Mapped[bool] = mapped_column(Boolean, default=False)
+    confidence: Mapped[int] = mapped_column(Integer, default=10)
+    confirmed: Mapped[bool] = mapped_column(Boolean, default=False)
 
     parent_id: Mapped[int] = mapped_column(ForeignKey('tasks.id'), nullable=True)
+    generation_id: Mapped[int] = mapped_column(ForeignKey('generations.id'), nullable=True)
 
     # entries = relationship("Entry", back_populates="task", foreign_keys=[Entry.task_id])
+    generation = relationship("Generation", back_populates="tasks")
     actions = relationship("Action", back_populates="task")
     parent = relationship("Task", remote_side=[id], back_populates="children")
     children = relationship("Task", back_populates="parent")
@@ -116,6 +120,9 @@ class Action(Base):
     __tablename__ = 'actions'
 
     action: Mapped[str] = mapped_column(String(32))
+    confidence: Mapped[int] = mapped_column(Integer, default=10)
+    confirmed: Mapped[bool] = mapped_column(Boolean, default=False)
+
     task_id: Mapped[int] = mapped_column(ForeignKey('tasks.id'), nullable=False)
     entry_id: Mapped[int] = mapped_column(ForeignKey('entries.id'), nullable=False)
 
@@ -144,7 +151,6 @@ class Generation(Base):
     process: Mapped[str] = mapped_column(String)
     data: Mapped[str] = mapped_column(Text)
     user_comment: Mapped[str | None] = mapped_column(String)
-    regenerated: Mapped[bool] = mapped_column(Boolean, default=False)
     entry_id: Mapped[int] = mapped_column(ForeignKey('entries.id'), nullable=False)
 
     entry = relationship("Entry", back_populates="generations")
