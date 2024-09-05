@@ -7,6 +7,20 @@ from src.db.map import Action, Entry, Task
 from .ollama.controller import attempt_to_fix_entry_processing, process_entry
 from .db import Controller
 
+# the idea is to make it organized, but just prompt in a reasonable way
+
+# give entry and task for context
+
+# ask it in plain english to list off potential actions and new tasks from a prompt
+
+# ask it to shove it into a format
+
+# if there is an error, show it what it did wrong and request it fix it. 
+
+# finally return the structured response. 
+
+
+
 class EntryAssociationContext:
     """just a helper data focused class for cleaning up this script"""
     def __init__(self):
