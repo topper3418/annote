@@ -19,6 +19,10 @@ class Base(DeclarativeBase):
         return session is not None and session.is_active
 
 
+# TODO: refactor actions so they are called annotations before it's too late
+# It makes like a million times more sense and ties in the name of the app
+
+
 
 ###################################################################################
 #                                  notetaking objects                             #
