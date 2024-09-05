@@ -63,15 +63,17 @@ def get_top_level_tasks(session: Session,
 def focus_task(session: Session,
                task_id: int,
                focus: bool = True):
-    task = session.query(Task).where(Task.id == task_id).one()
+    task = session.query(Task).where(Task.id == task_id).first()
+    if not task:
+        raise ValueError(f'no task found matching {task_id}')
     task.focus = focus
     session.commit()
     return task
 
 
-def get_focused_tasks(session: Session):
-    tasks = session.query(Task).where(Task.focus == True).all()
-    return tasks
+def get_focused_task(session: Session, offset: int = 0):
+    task = session.query(Task).where(Task.focus == True).all()[offset]
+    return task
 
 # TODO: GET ALL TASKS
 

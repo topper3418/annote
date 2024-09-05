@@ -53,7 +53,7 @@ def get_entry_association_context() -> EntryAssociationContext:
             return context
         
         # context for the entry
-        context.context = conn.get_focused_task()
+        context.context = conn.get_focused_tasks()
 
         # convert to json for the generation
         context.get_json()

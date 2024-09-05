@@ -47,7 +47,7 @@ def show_tasks(limit, search=None, focused=True):
     if search:
         print(f"Filtering by: {search}")
     with Controller() as conn:
-        tasks = conn.get_focused_tasks()
+        tasks = conn.get_focused_task()
         pprint([task.json(recurse=2) for task in tasks])
 
 def flush_annotations():

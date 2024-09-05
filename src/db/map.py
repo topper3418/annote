@@ -37,9 +37,9 @@ class Entry(Base):
 
     text: Mapped[str] = mapped_column(String)
     create_time: Mapped[datetime] = mapped_column(DateTime, default=datetime.now)
-    # task_id: Mapped[int] = mapped_column(ForeignKey('tasks.id'), nullable=True)
+    context_id: Mapped[int] = mapped_column(ForeignKey('tasks.id'), nullable=True)
 
-    # task = relationship("Task", back_populates="entries", foreign_keys=[task_id])
+    context = relationship("Task", back_populates="entries", foreign_keys=[context_id])
     actions = relationship("Action", back_populates="entry")
     generations = relationship("Generation", back_populates="entry")
 
@@ -80,7 +80,7 @@ class Task(Base):
     parent_id: Mapped[int] = mapped_column(ForeignKey('tasks.id'), nullable=True)
     generation_id: Mapped[int] = mapped_column(ForeignKey('generations.id'), nullable=True)
 
-    # entries = relationship("Entry", back_populates="task", foreign_keys=[Entry.task_id])
+    entries = relationship("Entry", back_populates="task", foreign_keys=[Entry.context_id])
     generation = relationship("Generation", back_populates="tasks")
     actions = relationship("Action", back_populates="task")
     parent = relationship("Task", remote_side=[id], back_populates="children")
