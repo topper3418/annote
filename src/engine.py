@@ -7,17 +7,114 @@ from src.db.map import Action, Entry, Task
 from .ollama.controller import attempt_to_fix_entry_processing, process_entry
 from .db import Controller
 
-# the idea is to make it organized, but just prompt in a reasonable way
 
-# give entry and task for context
+get_tasks_prompt = """\
+you are responsible for interpreting the ramblings of a user into an 
+organized notebook. To this end you will view a short note they take
+in the context of a task they are undertaking. Sometimes the note will
+be related, sometimes the note will be about something different. I want
+to know: what new tasks (or subtasks of tasks shown here) are implied by 
+this note, if any? Is a start or end time implied or given? Please respond
+with detail and in list format.
 
-# ask it in plain english to list off potential actions and new tasks from a prompt
+TASK: 
+{task}
 
-# ask it to shove it into a format
+ENTRY:
+{entry}"""
 
-# if there is an error, show it what it did wrong and request it fix it. 
 
-# finally return the structured response. 
+format_tasks_prompt = """\
+you are responsible for taking a list of tasks and subtasks and putting it into
+a json format for easy computation. These tasks and subtasks may or may not be
+related to an entry provided for context. 
+
+Here is the schema for how I would like you to return the data:
+
+// this is the object you will return each time
+interface response {{
+    tasks: task[];  // it is okay to return an empty array if there are no tasks given
+}}
+
+interface task {{
+    text: string; // a concise string representing the task
+    parentName?: string; // the name of the task that is the parent of this one, if applicable.
+    start?: string; // string in the format of "%m/%d/%y %H:%M" estimating the start time of the task, if applicable
+    end?: string; // string in the format of "%m/%d/%y %H:%M" estimating the end time of the task, if applicable
+    children?: task[]; // a list of subtasks, if applicable. same shape as this task object, but parent will be implied so do not include it
+    focus: boolean; // does this seem like something the user intends to put effort or thought into in the immediate future?
+}}    
+
+CONTEXT TASK: 
+{task}
+
+TASKS AND SUBTASKS:
+{prev_response}"""
+
+
+get_annotations_prompt = """\
+you are in charge of interpreting the ramblings of a user into an 
+organized notebook. To this end you will view a short note they take
+in the context of a task they are undertaking. Sometimes the note will
+be related, sometimes the note will be about something different. I want
+to know: Does this note relate to the task or any of its subtasks? if so, 
+how? Please respond with detail and in list format. 
+
+TASK: 
+{task}
+
+ENTRY:
+{entry}"""
+
+
+format_annotations_prompt = """\
+you are responsible for taking a list of annotations and putting it into
+a json format for easy computation. These annotations will be relating 
+a note taken by a user to a task (or its subtasks) they are supposed to 
+be focusing on. 
+
+Here is the schema for how I would like you to return the data:
+
+// this is the object you will return each time
+interface response {{
+    actions?: action[];
+}}
+
+enum action_str {{
+    begin = "begin",
+    pause = "pause",
+    complete = "complete",
+    cancel = "cancel",
+    note = "note"
+}}
+
+interface action {{
+    action: action_str; // what does this entry seem to do to this task?
+    taskName: string; // a string matching the name of the parent task it relates to. This cannot be any of the tasks returned, as those will automatically have a "create" action assigned to them. 
+}}
+
+CONTEXT TASK: 
+{task}
+
+LIST OF ACTIONS
+{prev_response}"""
+
+
+
+
+def annotate(entry_id, task_id):
+    """This will take an entry and a task and generate a series of new subtasks and notes"""
+    # the idea is to make it organized, but just prompt in a reasonable way
+
+    # give entry and task for context
+
+    # ask it in plain english to list off potential actions and new tasks from a prompt
+
+    # ask it to shove it into a format
+
+    # if there is an error, show it what it did wrong and request it fix it. 
+
+    # finally return the structured response. 
 
 
 
