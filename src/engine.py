@@ -5,7 +5,20 @@ from typing import Tuple, List
 
 from src.db.map import Action, Entry, Task
 from .ollama.controller import attempt_to_fix_entry_processing, process_entry
+from .ollama.prompt import prompt_ollama
 from .db import Controller
+
+# the idea is to make it organized, but just prompt in a reasonable way
+
+# give entry and task for context
+
+# ask it in plain english to list off potential actions and new tasks from a prompt
+
+# ask it to shove it into a format
+
+# if there is an error, show it what it did wrong and request it fix it. 
+
+# finally return the structured response. 
 
 
 get_tasks_prompt = """\
@@ -104,18 +117,14 @@ LIST OF ACTIONS
 
 def annotate(entry_id, task_id):
     """This will take an entry and a task and generate a series of new subtasks and notes"""
-    # the idea is to make it organized, but just prompt in a reasonable way
-
-    # give entry and task for context
-
-    # ask it in plain english to list off potential actions and new tasks from a prompt
-
-    # ask it to shove it into a format
-
-    # if there is an error, show it what it did wrong and request it fix it. 
-
-    # finally return the structured response. 
-
+    # first ask it for any tasks and subtasks that can be inferred from the entry
+    # get_tasks = get_tasks_prompt.format(
+    # tasks_english = prompt_ollama(
+    # OK so this should be the plan: 
+    # 1) take the actions of getting the tasks and getting the annotations and 
+    #    split them up, so that they can be tested and worked on individually
+    # 2) work this into the cli so that testing can be nice and easy
+    
 
 
 class EntryAssociationContext:
