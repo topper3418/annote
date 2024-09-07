@@ -1,5 +1,6 @@
 import os
 import traceback
+import json
 from pprint import pprint
 from typing import Tuple, List
 
@@ -113,6 +114,21 @@ LIST OF ACTIONS
 {prev_response}"""
 
 
+def get_subtasks(entry_id, task_id):
+    with Controller() as conn:
+        entry=conn.get_entry(entry_id)
+        if entry is None:
+            raise Exception(f'no entry found matching id {entry_id}')
+        task=conn.get_task(task_id)
+        if task is None:
+            raise Exception(f'no task found matching id {task_id}')
+        entry_json = entry.json(recurse=1)
+        task_json = task.json(recurse=1)
+    tasks_unformatted = get_tasks_prompt.format(
+        task=json.dumps(task_json, indent=4),
+        entry=json.dumps(entry_json, indent=4)
+    )
+    print(tasks_unformatted)
 
 
 def annotate(entry_id, task_id):
