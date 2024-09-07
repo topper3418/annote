@@ -1,7 +1,5 @@
 from typing import List, Optional
 
-from sqlalchemy.util import generic_repr
-
 from src.db.controller.actions import create_action, wipe_actions
 
 from .tasks import create_task, focus_task, get_focused_task, get_latest_task, get_task, search_task, wipe_tasks
