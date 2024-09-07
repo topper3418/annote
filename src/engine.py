@@ -22,7 +22,7 @@ from .db import Controller
 # finally return the structured response. 
 
 
-get_tasks_prompt = """\
+get_tasks_prompt_template = """\
 you are responsible for interpreting the ramblings of a user into an 
 organized notebook. To this end you will view a short note they take
 in the context of a task they are undertaking. Sometimes the note will
@@ -38,7 +38,7 @@ ENTRY:
 {entry}"""
 
 
-format_tasks_prompt = """\
+format_tasks_prompt_template = """\
 you are responsible for taking a list of tasks and subtasks and putting it into
 a json format for easy computation. These tasks and subtasks may or may not be
 related to an entry provided for context. 
@@ -66,7 +66,7 @@ TASKS AND SUBTASKS:
 {prev_response}"""
 
 
-get_annotations_prompt = """\
+get_annotations_prompt_template = """\
 you are in charge of interpreting the ramblings of a user into an 
 organized notebook. To this end you will view a short note they take
 in the context of a task they are undertaking. Sometimes the note will
@@ -81,7 +81,7 @@ ENTRY:
 {entry}"""
 
 
-format_annotations_prompt = """\
+format_annotations_prompt_template = """\
 you are responsible for taking a list of annotations and putting it into
 a json format for easy computation. These annotations will be relating 
 a note taken by a user to a task (or its subtasks) they are supposed to 
@@ -117,11 +117,11 @@ class AnnotationContext:
     def __init__(self, entry: Entry, task: Task):
         self.entry = entry
         self.task = task
-        self.controller = Controller
 
     def bind(self, session):
         """binds the objects to a session again"""
-        pass
+        self.entry = session.merge(self.entry)
+        self.task = session.merge(self.task)
 
     def _verify_session(self):
         """verifies the objects are attached to a session"""
@@ -132,18 +132,36 @@ class AnnotationContext:
         return self.entry.json(recurse=entry_recurse), self.task.json(recurse=task_recurse)
 
 
-def get_subtasks(entry_json: dict, task_json: dict):
-    extract_prompt = get_tasks_prompt.format(
+# TODO: run these on linux and actually test. also hook up to cli
+def get_subtasks(entry_json: dict, task_json: dict) -> dict:
+    extract_prompt = get_tasks_prompt_template.format(
         task=json.dumps(task_json, indent=4),
         entry=json.dumps(entry_json, indent=4)
     )
-    tasks_unformatted = prompt_ollama(extract_prompt, as_json=False)
-    print(tasks_unformatted)
-    # continue developing this
+    tasks_and_subtasks_unformatted = prompt_ollama(extract_prompt, as_json=False)
+    pprint(tasks_and_subtasks_unformatted)
+    format_prompt = format_tasks_prompt_template.format(
+        task=json.dumps(task_json, indent=4),
+        prev_response=tasks_and_subtasks_unformatted
+    )
+    tasks_and_subtasks = prompt_ollama(format_prompt)
+    pprint(tasks_and_subtasks)
+    return tasks_and_subtasks
 
 
 def get_annotations(entry_json: dict, task_json: dict):
-    pass
+    extract_prompt = get_annotations_prompt_template.format(
+            task=task_json,
+            entry=entry_json
+    )
+    annotations_unformatted = prompt_ollama(extract_prompt, as_json=False)
+    format_prompt = format_annotations_prompt_template.format(
+        task=json.dumps(task_json, indent=4),
+        prev_response=annotations_unformatted
+    )
+    annotations = prompt_ollama(format_prompt)
+    pprint(annotations)
+    return annotations
 
 
 
