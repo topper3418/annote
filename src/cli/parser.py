@@ -16,6 +16,8 @@ parser_create.set_defaults(func=create_entry)
 # Query related subcommands
 parser_query = subparsers.add_parser("query", help="Query entries, generations, or tasks")
 parser_query.add_argument("-l", "--limit", type=int, help="Limit the number of results", default=50)
+parser_query.add_argument("-o", "--offset", type=int, help="offset where to start searching", default=0)
+parser_query.add_argument("--id", type=int, help="search specifically for an object by id")
 parser_query.add_argument("-s", "--search", help="Search filter")
 
 parser_query.add_argument("-g", "--generations", action="store_true", help="Query generations")

@@ -71,8 +71,11 @@ def focus_task(session: Session,
     return task
 
 
-def get_focused_task(session: Session, offset: int = 0):
-    task = session.query(Task).where(Task.focus == True).all()[offset]
+def get_focused_task(session: Session, offset: int = 0) -> Task | None:
+    task_match = session.query(Task).where(Task.focus == True).all()
+    if not len(task_match) > offset:
+        return
+    task = task_match[offset]
     return task
 
 # TODO: GET ALL TASKS

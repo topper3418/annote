@@ -17,13 +17,13 @@ def get_recent_entries(session: Session,
                        search: Optional[str] = None) -> List[Entry]:
     query = session.query(Entry)
     if search is not None:
-        query = query.filter(Entry.text.ilike(search))
+        query = query.filter(Entry.text.ilike(f'%search%'))
     query = query.order_by(desc(Entry.create_time)).limit(limit)
     entries = query.all()
     return entries
 
 
-def get_latest_entry(session: Session) -> Entry:
+def get_latest_entry(session: Session) -> Entry | None:
     query = session.query(Entry).order_by(desc(Entry.id))
     entry = query.first()
     return entry

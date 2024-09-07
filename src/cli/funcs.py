@@ -41,23 +41,31 @@ def show_generations(limit, search=None):
         generations = conn.get_generations()
         pprint([generation.json(recurse=1) for generation in generations])
 
-def show_tasks(limit, search=None, focused=True):
+def show_tasks(limit, search=None, focused=True, task_id=None, offset=0):
     focus_state = "focused" if focused else "unfocused"
     print(f"Showing the latest {limit} {focus_state} tasks")
-    if search:
-        print(f"Filtering by: {search}")
     with Controller() as conn:
-        tasks = conn.get_focused_task()
-        pprint([task.json(recurse=2) for task in tasks])
+        if task_id:
+            print(f"getting task by id {task_id}")
+            task = conn.get_task(task_id)
+        else:
+            task = conn.get_focused_task(offset=offset)
+        if task is None:
+            print("No task found")
+        else:
+            pprint(task.json(recurse=2))
 
 def show(args):
-    limit, search = args.limit, args.search
     if args.tasks:
-        show_tasks(limit, search, args.focus)
+        show_tasks(args.limit, 
+                   args.search, 
+                   focused=args.focus, 
+                   task_id=args.id,
+                   offset=args.offset)
     elif args.generations:
-        show_generations(limit, search)
+        show_generations(args.limit, args.search)
     else:
-        show_entries(limit, search)
+        show_entries(args.limit, args.search)
 
 def flush_annotations():
     confirm = input("Are you sure you want to wipe all tables besides entries? Type 'yes' to confirm: ")

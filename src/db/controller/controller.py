@@ -105,7 +105,7 @@ class Controller:
         task = focus_task(self.session, task_id, focus)
         return task
 
-    def get_focused_task(self, offset: int = 0):
+    def get_focused_task(self, offset: int = 0) -> Task | None:
         self._ensure_session()
         return get_focused_task(self.session, offset)
 
