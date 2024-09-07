@@ -1,4 +1,4 @@
-from src.engine import associate_entry
+from src.engine import annotate
 from ..db import Controller
 from pprint import pprint
 import os
@@ -13,6 +13,14 @@ def create_entry(args):
         new_entry = db.create_entry(args.note)
         return new_entry.json()
 
+def create_task(args):
+    print(f"Creating task: {args.task}")
+    with Controller() as conn:
+        parent = conn.get_task(args.parent_id) if args.parent_id else None
+        new_task = conn.create_task({"text": args.task,
+                                     "focus": args.focus},
+                                    parent=parent)
+        return new_task.json()
 
 def load_entries(filename):
     filepath = os.path.join('data', filename)
@@ -92,7 +100,7 @@ def route_dev_command(args):
     elif args.delete_database:
         delete_database()
     elif args.cycle_next_entry:
-        associate_entry()
+        annotate()
     elif args.load:
         load_entries(args.load)
 

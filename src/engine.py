@@ -2,7 +2,7 @@ import os
 import traceback
 import json
 from pprint import pprint
-from typing import Tuple, List
+from typing import Optional, Tuple, List
 
 from src.db.map import Action, Entry, Session, Task
 from .ollama.controller import attempt_to_fix_entry_processing, process_entry
@@ -135,16 +135,24 @@ class AnnotationContext:
 # TODO: run these on linux and actually test. also hook up to cli
 def get_subtasks(entry_json: dict, task_json: dict) -> dict:
     extract_prompt = get_tasks_prompt_template.format(
-        task=json.dumps(task_json, indent=4),
+        task=json.dumps(task_json, indent=4) if task_json is not None else "No context provided",
         entry=json.dumps(entry_json, indent=4)
     )
+    print('PROMPTING MODEL FOR ORGANIC RETURN:\n\n')
+    print(extract_prompt, '\n\n\n')
     tasks_and_subtasks_unformatted = prompt_ollama(extract_prompt, as_json=False)
+    print('RESULTS:\n\n')
     pprint(tasks_and_subtasks_unformatted)
+    print('\n\n\n\n')
     format_prompt = format_tasks_prompt_template.format(
         task=json.dumps(task_json, indent=4),
         prev_response=tasks_and_subtasks_unformatted
     )
+    print('PROMPTING MODEL FOR STRUCTURED RETURN:\n\n')
+    print(format_prompt, '\n\n\n')
     tasks_and_subtasks = prompt_ollama(format_prompt)
+    print('RESULTS:\n\n')
+    print('\n\n\n\n')
     pprint(tasks_and_subtasks)
     return tasks_and_subtasks
 
@@ -165,16 +173,16 @@ def get_annotations(entry_json: dict, task_json: dict):
 
 
 
-def annotate(entry_id, task_id):
+def annotate(entry_id: int, task_id: Optional[int] = None):
     """This will take an entry and a task and generate a series of new subtasks and notes"""
-    # first ask it for any tasks and subtasks that can be inferred from the entry
-    # get_tasks = get_tasks_prompt.format(
-    # tasks_english = prompt_ollama(
-    # OK so this should be the plan: 
-    # 1) take the actions of getting the tasks and getting the annotations and 
-    #    split them up, so that they can be tested and worked on individually
-    # 2) work this into the cli so that testing can be nice and easy
-    pass
-    
+    with Controller() as conn: 
+        entry = conn.get_entry(entry_id)
+        if entry is None:
+            raise Exception(f'no entry found for id {entry_id}')
+        task = conn.get_task(task_id) if task_id is not None else None
+        entry_json = entry.json()
+        task_json = task.json(recurse=1) if task is not None else None
+        subtask_dict = get_subtasks(entry_json, task_json)
+        print('wow you actually made it')
 
 

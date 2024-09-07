@@ -1,5 +1,5 @@
 import argparse
-from .funcs import print_info, create_entry, show, route_dev_command
+from .funcs import print_info, create_entry, show, route_dev_command, create_task
 
 parser = argparse.ArgumentParser(description="Annote CLI App")
 subparsers = parser.add_subparsers(dest="subcommand", help="Subcommand to run")
@@ -9,9 +9,16 @@ parser_info = subparsers.add_parser("annote", help="Print program info")
 parser_info.set_defaults(func=print_info)
 
 # Create a note
-parser_create = subparsers.add_parser("note", help="Create a note")
-parser_create.add_argument("note", help="The note content")
-parser_create.set_defaults(func=create_entry)
+parser_create_entry = subparsers.add_parser("note", help="Create a note")
+parser_create_entry.add_argument("note", help="The note content")
+parser_create_entry.set_defaults(func=create_entry)
+
+# Create a task
+parser_create_task = subparsers.add_parser("task", help="Create or modify a task")
+parser_create_task.add_argument("task", help="The task name")
+parser_create_task.add_argument("-f", "--focus", action="store_true", help="Focuses the task on creation")
+parser_create_task.add_argument("-p", "--parent-id", type=int, help="the id of the parent task that this is a subtask to")
+parser_create_task.set_defaults(func=create_task)
 
 # Query related subcommands
 parser_query = subparsers.add_parser("query", help="Query entries, generations, or tasks")
