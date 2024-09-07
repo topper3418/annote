@@ -6,7 +6,7 @@ import ollama
 def prompt_ollama(prompt: str, as_json: bool = True, temperature: int = 0) -> str | dict:
     response = ollama.generate(
         prompt=prompt,
-        format='json' if json else '',
+        format='json' if as_json else '',
         model='llama3.1',
         options={ 'temperature': temperature },
         stream=False

@@ -1,41 +1,23 @@
-import os
-import traceback
 import json
 from pprint import pprint
-from typing import Optional, Tuple, List
+from typing import Optional
 
-from src.db.map import Action, Entry, Session, Task
-from .ollama.controller import attempt_to_fix_entry_processing, process_entry
+from src.db.map import Entry, Task
 from .ollama.prompt import prompt_ollama
 from .db import Controller
 
-# the idea is to make it organized, but just prompt in a reasonable way
-
-# give entry and task for context
-
-# ask it in plain english to list off potential actions and new tasks from a prompt
-
-# ask it to shove it into a format
-
-# if there is an error, show it what it did wrong and request it fix it. 
-
-# finally return the structured response. 
-
 
 get_tasks_prompt_template = """\
-you are responsible for interpreting the ramblings of a user into an 
-organized notebook. To this end you will view a short note they take
-in the context of a task they are undertaking. Sometimes the note will
-be related, sometimes the note will be about something different. I want
-to know: what new tasks (or subtasks of tasks shown here) are implied by 
-this note, if any? Is a start or end time implied or given? Please respond
-with detail and in list format.
+you are responsible for interpreting the ramblings of a user into an organized notebook. To this end you will view a short note they take in the context of a task they are undertaking. Sometimes the note will be related, sometimes the note will be about something different. I want to know: what new tasks (or subtasks of tasks shown here) are implied by this note, if any? Is a start or end time implied or given?
 
-TASK: 
+TASK FOR CONTEXT: 
 {task}
 
 ENTRY:
-{entry}"""
+{entry}
+
+Please respond in sentences with one sentence per new task or subtask. Please do not include any duplicates from the context task. If the new task is a subtask of any of the context tasks, it should be mentioned in the sentence. 
+"""
 
 
 format_tasks_prompt_template = """\
@@ -59,11 +41,14 @@ interface task {{
     focus: boolean; // does this seem like something the user intends to put effort or thought into in the immediate future?
 }}    
 
-CONTEXT TASK: 
+TASK FOR CONTEXT: 
 {task}
 
 TASKS AND SUBTASKS:
-{prev_response}"""
+{prev_response}
+
+Please respond only in json and do not duplicate any of the tasks or subtasks given for context, except to call them out as the parent for new tasks. I repeat, do not include anything in the task for context in your response besides filling out the parentName field. 
+"""
 
 
 get_annotations_prompt_template = """\
@@ -138,21 +123,23 @@ def get_subtasks(entry_json: dict, task_json: dict) -> dict:
         task=json.dumps(task_json, indent=4) if task_json is not None else "No context provided",
         entry=json.dumps(entry_json, indent=4)
     )
-    print('PROMPTING MODEL FOR ORGANIC RETURN:\n\n')
-    print(extract_prompt, '\n\n\n')
+    print('PROMPTING MODEL FOR ORGANIC RETURN:')#\n\n')
+    print(extract_prompt)
+    # print('\n\n\n')
     tasks_and_subtasks_unformatted = prompt_ollama(extract_prompt, as_json=False)
-    print('RESULTS:\n\n')
+    print('RESULTS:')#\n\n')
     pprint(tasks_and_subtasks_unformatted)
-    print('\n\n\n\n')
+    # print('\n\n\n\n')
     format_prompt = format_tasks_prompt_template.format(
         task=json.dumps(task_json, indent=4),
         prev_response=tasks_and_subtasks_unformatted
     )
-    print('PROMPTING MODEL FOR STRUCTURED RETURN:\n\n')
-    print(format_prompt, '\n\n\n')
+    print('PROMPTING MODEL FOR STRUCTURED RETURN:')#\n\n')
+    print(format_prompt)
+    # print('\n\n\n')
     tasks_and_subtasks = prompt_ollama(format_prompt)
-    print('RESULTS:\n\n')
-    print('\n\n\n\n')
+    print('RESULTS:')#\n\n')
+    # print('\n\n\n\n')
     pprint(tasks_and_subtasks)
     return tasks_and_subtasks
 
@@ -172,17 +159,29 @@ def get_annotations(entry_json: dict, task_json: dict):
     return annotations
 
 
-
-def annotate(entry_id: int, task_id: Optional[int] = None):
+def annotate(entry: Entry, task: Optional[Task] = None):
     """This will take an entry and a task and generate a series of new subtasks and notes"""
+    entry_json = entry.json()
+    task_json = task.json(recurse=1) if task is not None else None
+    subtask_dict = get_subtasks(entry_json, task_json)
+    pprint(subtask_dict)
+    print('wow you actually made it')
+
+
+def cycle_next_entry():
     with Controller() as conn: 
-        entry = conn.get_entry(entry_id)
+        task = conn.get_focused_task()
+        target_entry_id = conn.get_latest_generated_entry_id() or 0 + 1
+        entry = conn.get_entry(target_entry_id)
         if entry is None:
-            raise Exception(f'no entry found for id {entry_id}')
-        task = conn.get_task(task_id) if task_id is not None else None
-        entry_json = entry.json()
-        task_json = task.json(recurse=1) if task is not None else None
-        subtask_dict = get_subtasks(entry_json, task_json)
-        print('wow you actually made it')
+            print('Entries have all been processed')
+            return
+        annotate(entry, task)
+
+
+
+
+
+
 
 

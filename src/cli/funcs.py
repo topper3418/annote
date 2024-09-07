@@ -1,4 +1,4 @@
-from src.engine import annotate
+from src.engine import cycle_next_entry
 from ..db import Controller
 from pprint import pprint
 import os
@@ -100,7 +100,7 @@ def route_dev_command(args):
     elif args.delete_database:
         delete_database()
     elif args.cycle_next_entry:
-        annotate()
+        cycle_next_entry()
     elif args.load:
         load_entries(args.load)
 
