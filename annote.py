@@ -4,16 +4,17 @@ import os
 from pprint import pprint
 from src.db import Controller
 from src.engine import associate_entry
+from src.cli.db import create_entry
 
 def print_info():
     print("Annote CLI App v1.0")
 
-def create_entry(note):
-    print(f"Creating note: {note}")
-    with Controller() as db: 
-        new_entry = db.create_entry(note)
-        return new_entry.json()
-
+# def create_entry(note):
+#     print(f"Creating note: {note}")
+#     with Controller() as db: 
+#         new_entry = db.create_entry(note)
+#         return new_entry.json()
+#
 def load_entries(filename):
     filepath = os.path.join('data', filename)
     print(f"loading entries from {filepath}")

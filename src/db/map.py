@@ -84,7 +84,7 @@ class Task(Base):
     parent_id: Mapped[int] = mapped_column(ForeignKey('tasks.id'), nullable=True)
     generation_id: Mapped[int] = mapped_column(ForeignKey('generations.id'), nullable=True)
 
-    entries = relationship("Entry", back_populates="task", foreign_keys=[Entry.context_id])
+    entries = relationship("Entry", back_populates="context", foreign_keys=[Entry.context_id])
     generation = relationship("Generation", back_populates="tasks")
     actions = relationship("Action", back_populates="task")
     parent = relationship("Task", remote_side=[id], back_populates="children")
@@ -158,6 +158,7 @@ class Generation(Base):
     entry_id: Mapped[int] = mapped_column(ForeignKey('entries.id'), nullable=False)
 
     entry = relationship("Entry", back_populates="generations")
+    tasks = relationship("Task", back_populates="generation")
 
     def json(self, recurse=0):
         if recurse > 5:
