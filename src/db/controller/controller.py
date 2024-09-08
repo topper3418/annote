@@ -76,9 +76,9 @@ class Controller:
         generations = get_generations(self.session, limit)
         return generations
 
-    def get_latest_generated_entry_id(self) -> int | None:
+    def get_latest_generated_entry_id(self, process_name: Optional[str] = None) -> int | None:
         self._ensure_session()
-        return get_latest_generated_entry_id(self.session)
+        return get_latest_generated_entry_id(self.session, process_name)
 
     def create_task(self,
                     task_dict: dict, 

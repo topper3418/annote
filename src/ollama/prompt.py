@@ -3,17 +3,30 @@ import json
 import ollama
 
 
-def prompt_ollama(prompt: str, as_json: bool = True, temperature: int = 0) -> str | dict:
+def prompt_ollama(prompt: str, temperature: int = 0) -> str:
     response = ollama.generate(
         prompt=prompt,
-        format='json' if as_json else '',
         model='llama3.1',
         options={ 'temperature': temperature },
         stream=False
     )
     response_text = response.get('response', '')
-    if as_json:
-        return json.loads(response_text)
-    else:
-        return response_text
+    return response_text
+
+
+def prompt_ollama_json(prompt: str, temperature: int = 0) -> dict:
+    response = ollama.generate(
+        prompt=prompt,
+        format='json',
+        model='llama3.1',
+        options={ 'temperature': temperature },
+        stream=False
+    )
+    response_text = response.get('response', '')
+    return json.loads(response_text)
+
+
+
+
+
 

@@ -1,5 +1,5 @@
 import json
-from typing import List
+from typing import List, Optional
 from sqlalchemy.orm import Session
 from sqlalchemy import desc
 from ..map import Generation, Entry
@@ -27,9 +27,12 @@ def get_latest_generation(session: Session) -> Generation | None:
     return generation
 
 
-def get_latest_generated_entry_id(session: Session) -> int | None:
+def get_latest_generated_entry_id(session: Session, process_name: Optional[str] = None) -> int | None:
     """gets the highest entry id that has been processed. not to be confused with the most recently processed entry id"""
-    highest_generation = session.query(Generation).order_by(desc(Generation.entry_id)).first()
+    query = session.query(Generation)
+    if process_name is not None:
+        query = query.where(Generation.process == process_name)
+    highest_generation = query.order_by(desc(Generation.entry_id)).first()
     return highest_generation.entry_id if highest_generation is not None else None
 
 
