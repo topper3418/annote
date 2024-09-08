@@ -5,6 +5,7 @@ from typing import Optional, Tuple, List
 from src.db.map import Entry, Generation, Task
 from ..ollama.prompt import prompt_ollama, prompt_ollama_json
 from ..db import Controller
+from .util import get_extraction_context
 
 
 PROCESS_NAME = 'extract_tasks'
@@ -80,11 +81,11 @@ def get_subtasks(entry_json: dict, task_json: dict) -> dict:
     return tasks_and_subtasks
 
 
-def get_extraction_context(conn: Controller) -> Tuple[Task | None, Entry | None]:
-    task = conn.get_focused_task()
-    target_entry_id = conn.get_latest_generated_entry_id(process_name=PROCESS_NAME) or 0 + 1
-    entry = conn.get_entry(target_entry_id)
-    return task, entry
+# def get_extraction_context(conn: Controller) -> Tuple[Task | None, Entry | None]:
+#     task = conn.get_focused_task()
+#     target_entry_id = conn.get_latest_generated_entry_id(process_name=PROCESS_NAME) or 0 + 1
+#     entry = conn.get_entry(target_entry_id)
+#     return task, entry
 
 
 def create_tasks(conn: Controller, task_dict: dict, entry: Entry) -> Tuple[List[Task], Generation]:
@@ -115,9 +116,9 @@ def create_tasks(conn: Controller, task_dict: dict, entry: Entry) -> Tuple[List[
     return new_task_objects, generation
     
 
-def cycle_next_entry():
+def get_tasks_from_next_entry():
     with Controller() as conn: 
-        task, entry = get_extraction_context(conn)
+        task, entry = get_extraction_context(conn, PROCESS_NAME)
         if entry is None: 
             print("all entries processed")
             return
