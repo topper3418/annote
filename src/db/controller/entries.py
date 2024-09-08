@@ -1,12 +1,12 @@
 from typing import Optional, List
 from sqlalchemy.orm import Session
 from sqlalchemy import desc
-from ..map import Entry
+from ..map import Entry, Task
 
 
-def create_entry(session: Session, prompt: str) -> Entry:
+def create_entry(session: Session, prompt: str, context: Optional[Task] = None) -> Entry:
     """from the user's input, creates and returns an entry"""
-    entry = Entry(text=prompt)
+    entry = Entry(text=prompt, context=context)
     session.add(entry)
     session.commit()
     return entry
@@ -14,10 +14,16 @@ def create_entry(session: Session, prompt: str) -> Entry:
 
 def get_recent_entries(session: Session,
                        limit: int = 50, 
-                       search: Optional[str] = None) -> List[Entry]:
+                       search: Optional[str] = None, 
+                       task: Optional[Task] = None, 
+                       task_id: Optional[int] = None) -> List[Entry]:
     query = session.query(Entry)
     if search is not None:
         query = query.filter(Entry.text.ilike(f'%search%'))
+    if task is not None:
+        query = query.where(Entry.context == task)
+    elif task_id is not None:
+        query = query.where(Entry.context_id == task_id)
     query = query.order_by(desc(Entry.create_time)).limit(limit)
     entries = query.all()
     return entries

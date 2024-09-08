@@ -11,6 +11,7 @@ parser_info.set_defaults(func=print_info)
 # Create a note
 parser_create_entry = subparsers.add_parser("note", help="Create a note")
 parser_create_entry.add_argument("note", help="The note content")
+parser_create_entry.add_argument("-c", "--context_id", help="the context task of the entry")
 parser_create_entry.set_defaults(func=create_entry)
 
 # Create a task
@@ -37,7 +38,7 @@ parser_dev = subparsers.add_parser("dev", help="Misc dev utilities")
 parser_dev.add_argument("--flush-annotations", action="store_true", help="Flush all annotations")
 # TODO: make it so that this can be done with any database in the future
 parser_dev.add_argument("--delete-database", action="store_true", help="Flush all annotations")
-parser_dev.add_argument("--cycle-next-entry", action="store_true", help="Cycle the engine once")
+parser_dev.add_argument("--cycle-task-extraction", action="store_true", help="Cycle the task extraction engine once")
 parser_dev.add_argument("--load", '-l', type=str, help="upload a list of \\n-separated entries to the db")
 parser_dev.set_defaults(func=route_dev_command)
 

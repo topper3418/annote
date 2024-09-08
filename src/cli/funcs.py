@@ -1,4 +1,4 @@
-from src.engine import cycle_next_entry
+from src.engine import cycle_task_extraction
 from ..db import Controller
 from pprint import pprint
 import os
@@ -10,7 +10,8 @@ def print_info():
 def create_entry(args):
     print(f"Creating note: {args.note}")
     with Controller() as db: 
-        new_entry = db.create_entry(args.note)
+        parent = db.get_task(args.context_id) if args.context_id else None
+        new_entry = db.create_entry(args.note, context=parent)
         return new_entry.json()
 
 def create_task(args):
@@ -49,17 +50,21 @@ def show_generations(limit, search=None):
         generations = conn.get_generations()
         pprint([generation.json(recurse=1) for generation in generations])
 
-def show_tasks(limit, search=None, focused=True, task_id=None, offset=0):
-    focus_state = "focused" if focused else "unfocused"
-    print(f"Showing the latest {limit} {focus_state} tasks")
+def show_tasks(limit, search=None, task_id=None, offset=0):
+    print(f"Showing {limit} top-level tasks")
     with Controller() as conn:
         if task_id:
             print(f"getting task by id {task_id}")
             task = conn.get_task(task_id)
+        elif search:
+            print(f'searching for task with search "{search}"')
+            task = conn.search_task(search_str=search)
         else:
-            task = conn.get_focused_task(offset=offset)
+            task = conn.get_top_level_tasks(limit=limit, offset=offset)
         if task is None:
             print("No task found")
+        elif isinstance(task, list):
+            pprint([task_inst.json(recurse=2) for task_inst in task])
         else:
             pprint(task.json(recurse=2))
 
@@ -67,7 +72,6 @@ def show(args):
     if args.tasks:
         show_tasks(args.limit, 
                    args.search, 
-                   focused=args.focus, 
                    task_id=args.id,
                    offset=args.offset)
     elif args.generations:
@@ -99,8 +103,8 @@ def route_dev_command(args):
         flush_annotations()
     elif args.delete_database:
         delete_database()
-    elif args.cycle_next_entry:
-        cycle_next_entry()
+    elif args.cycle_task_extraction:
+        cycle_task_extraction()
     elif args.load:
         load_entries(args.load)
 

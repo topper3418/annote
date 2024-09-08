@@ -1,1 +1,1 @@
-from .tasks_from_entry import cycle_next_entry
+from .tasks_from_entry import cycle_next_entry as cycle_task_extraction

@@ -19,7 +19,7 @@ TASK FOR CONTEXT:
 ENTRY:
 {entry}
 
-Please respond in sentences with one sentence per new task or subtask. Please do not include any duplicates from the context task. If the new task is a subtask of any of the context tasks, it should be mentioned in the sentence. 
+Please respond in sentences with one sentence per new task or subtask. Please do not include any duplicates from the context task. If the new task is a subtask of any of the context tasks, it should be mentioned in the sentence. Do not imply secondary tasks from the entry, only extract tasks that are called out in the entry
 """
 
 

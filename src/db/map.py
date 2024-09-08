@@ -77,15 +77,12 @@ class Task(Base):
     start: Mapped[datetime | None] = mapped_column(DateTime)
     end: Mapped[datetime | None] = mapped_column(DateTime)
     status: Mapped[str] = mapped_column(String, default="new")
-    focus: Mapped[bool] = mapped_column(Boolean, default=False)
-    confidence: Mapped[int] = mapped_column(Integer, default=10)
-    confirmed: Mapped[bool] = mapped_column(Boolean, default=False)
 
     parent_id: Mapped[int] = mapped_column(ForeignKey('tasks.id'), nullable=True)
-    generation_id: Mapped[int] = mapped_column(ForeignKey('generations.id'), nullable=True)
+    source_generation_id: Mapped[int] = mapped_column(ForeignKey('generations.id'), nullable=True)
 
     entries = relationship("Entry", back_populates="context", foreign_keys=[Entry.context_id])
-    generation = relationship("Generation", back_populates="tasks")
+    source_generation = relationship("Generation", back_populates="tasks")
     actions = relationship("Action", back_populates="task")
     parent = relationship("Task", remote_side=[id], back_populates="children")
     children = relationship("Task", back_populates="parent")
@@ -101,7 +98,6 @@ class Task(Base):
             "text": self.text,
             "start": self.start.strftime("%D %H:%M") if self.start else None,
             "end": self.end.strftime("%D %H:%M") if self.end else None,
-            "focus": self.focus,
         }
         if recurse == 1:
             if 'actions' not in suppress:
@@ -158,7 +154,7 @@ class Generation(Base):
     entry_id: Mapped[int] = mapped_column(ForeignKey('entries.id'), nullable=False)
 
     entry = relationship("Entry", back_populates="generations")
-    tasks = relationship("Task", back_populates="generation")
+    tasks = relationship("Task", back_populates="source_generation")
 
     def json(self, recurse=0):
         if recurse > 5:

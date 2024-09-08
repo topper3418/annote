@@ -2,7 +2,7 @@ from typing import List, Optional
 
 from src.db.controller.actions import create_action, wipe_actions
 
-from .tasks import create_task, focus_task, get_focused_task, get_latest_task, get_task, search_task, wipe_tasks
+from .tasks import create_task, focus_task, get_focused_task, get_latest_task, get_task, get_top_level_tasks, search_task, wipe_tasks
 from .generation import create_generation, get_generations, get_latest_generated_entry_id, get_latest_generation, wipe_generations
 from ..map import Entry, Generation, Session, Task, Action, Base, engine
 from .entries import create_entry, get_entry, get_latest_entry, get_recent_entries, is_latest_entry
@@ -34,9 +34,9 @@ class Controller:
         finally:
             self.session.close()
 
-    def create_entry(self, prompt) -> Entry:
+    def create_entry(self, prompt: str, context: Optional[Task] = None) -> Entry:
         self._ensure_session()
-        entry = create_entry(self.session, prompt)
+        entry = create_entry(self.session, prompt, context)
         return entry
 
     def get_entry(self, entry_id) -> Entry | None: 
@@ -50,16 +50,18 @@ class Controller:
         generation = get_latest_generation(self.session)
         task = get_latest_task(self.session)
         return {
-                'entry': entry.id,
+                'entry': entry.id if entry is not None else None,
                 'generation': generation.id if generation is not None else None,
                 'task': task.id if task is not None else None
         }
 
     def get_recent_entries(self, 
                            limit: int = 50, 
-                           search: Optional[str] = None) -> List[Entry]:
+                           search: Optional[str] = None,
+                           task: Optional[Task] = None,
+                           task_id: Optional[int] = None) -> List[Entry]:
         self._ensure_session()
-        entries = get_recent_entries(self.session, limit, search)
+        entries = get_recent_entries(self.session, limit, search, task, task_id)
         return entries
 
     def is_latest_entry(self, entry_id: int):
@@ -92,6 +94,11 @@ class Controller:
         self._ensure_session()
         task = get_task(self.session, task_id)
         return task
+
+    def get_top_level_tasks(self, limit: int=50, show_completed: bool=False, offset: int=0) -> List[Task]:
+        self._ensure_session()
+        tasks = get_top_level_tasks(self.session, limit, show_completed)
+        return tasks
 
     def search_task(self, search_str: str) -> Task | None:
         self._ensure_session()
